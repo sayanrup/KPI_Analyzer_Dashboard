@@ -1,0 +1,1871 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IndiaMART Â· Traffic Intelligence</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #060810;
+  --surface: #0b0e1a;
+  --card: #0f1420;
+  --card2: #141928;
+  --border: #1a2235;
+  --border2: #202c45;
+  --text: #edf0fb;
+  --text2: #8a97b8;
+  --text3: #4e5a77;
+  --indigo: #6366f1;
+  --indigo-dim: rgba(99,102,241,0.12);
+  --cyan: #22d3ee;
+  --cyan-dim: rgba(34,211,238,0.10);
+  --amber: #f59e0b;
+  --amber-dim: rgba(245,158,11,0.10);
+  --red: #f43f5e;
+  --red-dim: rgba(244,63,94,0.10);
+  --green: #10b981;
+  --green-dim: rgba(16,185,129,0.10);
+  --violet: #a78bfa;
+  --violet-dim: rgba(167,139,250,0.10);
+  --pink: #f472b6;
+  --pink-dim: rgba(244,114,182,0.10);
+  --hover: #131828;
+  --radius: 14px;
+  --radius-sm: 9px;
+  --shadow: 0 8px 40px rgba(0,0,0,0.6);
+  --transition: all 0.18s cubic-bezier(0.4,0,0.2,1);
+}
+
+body.light {
+  --bg: #f0f4fc;
+  --surface: #e5ecf8;
+  --card: #ffffff;
+  --card2: #f5f8ff;
+  --border: #dae2f0;
+  --border2: #c4d0e7;
+  --text: #0f172a;
+  --text2: #475569;
+  --text3: #94a3b8;
+  --hover: #eef3fc;
+  --indigo-dim: rgba(99,102,241,0.08);
+  --cyan-dim: rgba(34,211,238,0.08);
+  --shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  font-family:'Inter',system-ui,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  overflow-x:hidden;
+  font-size:14px;
+  line-height:1.5;
+}
+
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
+::-webkit-scrollbar-thumb:hover{background:var(--text3);}
+
+/* â”€â”€ TOPBAR â”€â”€ */
+.topbar{
+  display:flex;align-items:center;gap:0;
+  background:rgba(11,14,26,0.88);
+  border-bottom:1px solid var(--border);
+  padding:0 24px;height:54px;
+  position:sticky;top:0;z-index:200;
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  box-shadow:0 1px 0 var(--border),0 4px 24px rgba(0,0,0,0.35);
+}
+body.light .topbar{background:rgba(255,255,255,0.92);}
+
+.topbar-brand{
+  display:flex;align-items:center;gap:10px;
+  padding-right:24px;border-right:1px solid var(--border);
+  margin-right:4px;flex-shrink:0;
+}
+.brand-icon{
+  width:30px;height:30px;
+  background:linear-gradient(135deg,#6366f1 0%,#22d3ee 100%);
+  border-radius:8px;display:flex;align-items:center;
+  justify-content:center;font-size:15px;
+  box-shadow:0 2px 14px rgba(99,102,241,0.45);
+}
+.brand-name{font-size:13.5px;font-weight:800;color:var(--text);letter-spacing:-0.4px;}
+.brand-sub{font-size:10.5px;color:var(--text3);font-weight:500;}
+
+.nav-tabs{display:flex;align-items:center;gap:2px;flex:1;}
+.nav-tab{
+  display:flex;align-items:center;gap:6px;
+  padding:6px 16px;border-radius:8px;border:none;
+  background:none;color:var(--text2);font-size:12.5px;font-weight:600;
+  cursor:pointer;transition:var(--transition);white-space:nowrap;
+  font-family:'Inter',sans-serif;letter-spacing:-0.1px;
+}
+.nav-tab:hover{background:var(--hover);color:var(--text);}
+.nav-tab.active{background:rgba(99,102,241,0.12);color:var(--indigo);box-shadow:inset 0 0 0 1px rgba(99,102,241,0.2);}
+.nav-tab .dot{width:5px;height:5px;border-radius:50%;background:currentColor;opacity:0.6;display:none;}
+.nav-tab.active .dot{display:block;opacity:1;}
+
+.topbar-right{display:flex;align-items:center;gap:8px;margin-left:auto;}
+.theme-btn{
+  padding:5px 12px;border-radius:8px;
+  border:1px solid var(--border2);background:var(--card);
+  color:var(--text2);font-size:12px;font-weight:600;
+  cursor:pointer;transition:var(--transition);font-family:'Inter',sans-serif;
+}
+.theme-btn:hover{border-color:var(--indigo);color:var(--text);box-shadow:0 0 0 2px rgba(99,102,241,0.15);}
+
+.status-pill{
+  display:flex;align-items:center;gap:5px;padding:4px 10px;
+  border-radius:20px;background:rgba(16,185,129,0.1);
+  border:1px solid rgba(16,185,129,0.25);
+  font-size:11px;font-weight:700;color:var(--green);
+}
+.status-dot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.4;transform:scale(0.8)}}
+
+/* â”€â”€ TAB CONTENT â”€â”€ */
+.tab-content{display:none;}
+.tab-content.active{display:block;}
+
+/* â”€â”€ LAYOUT â”€â”€ */
+.page{max-width:1600px;margin:0 auto;padding:20px 24px;}
+
+/* â”€â”€ UPLOAD SECTION â”€â”€ */
+.upload-section{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--radius);margin-bottom:20px;overflow:hidden;
+  box-shadow:0 2px 20px rgba(0,0,0,0.28);transition:var(--transition);
+}
+.upload-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:13px 18px;border-bottom:1px solid var(--border);
+  background:linear-gradient(135deg,var(--card2) 0%,var(--card) 100%);
+}
+.upload-header-left{display:flex;align-items:center;gap:10px;}
+.upload-header h3{font-size:13px;font-weight:700;color:var(--text);letter-spacing:-0.2px;}
+.upload-body{padding:18px;}
+.upload-section-label{
+  font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;
+  color:var(--text3);margin-bottom:8px;margin-top:16px;
+}
+.upload-section-label:first-child{margin-top:0;}
+
+.upload-grid-table{width:100%;border-collapse:collapse;font-size:12.5px;}
+.upload-grid-table th{
+  text-align:left;padding:6px 12px;font-size:9.5px;font-weight:700;
+  text-transform:uppercase;letter-spacing:0.7px;color:var(--text3);
+  border-bottom:1px solid var(--border);
+}
+.upload-grid-table td{padding:8px 12px;border-bottom:1px solid var(--border);vertical-align:middle;}
+.upload-grid-table tr:last-child td{border-bottom:none;}
+.upload-grid-table tr:hover td{background:var(--hover);}
+
+.type-badge{
+  display:inline-block;padding:2px 9px;border-radius:6px;
+  font-size:10px;font-weight:700;letter-spacing:0.3px;text-transform:uppercase;
+}
+.type-gsc  {background:rgba(34,211,238,0.12);color:var(--cyan);border:1px solid rgba(34,211,238,0.2);}
+.type-daily{background:rgba(16,185,129,0.12);color:var(--green);border:1px solid rgba(16,185,129,0.2);}
+.type-biz  {background:rgba(245,158,11,0.12);color:var(--amber);border:1px solid rgba(245,158,11,0.2);}
+
+.upload-btn{
+  display:inline-flex;align-items:center;gap:6px;padding:5px 13px;
+  border-radius:8px;border:1px solid var(--border2);background:var(--card2);
+  color:var(--text2);font-size:12px;font-weight:600;cursor:pointer;
+  transition:var(--transition);font-family:'Inter',sans-serif;
+}
+.upload-btn:hover{border-color:var(--indigo);color:var(--text);background:rgba(99,102,241,0.08);box-shadow:0 0 0 2px rgba(99,102,241,0.12);}
+.upload-btn.loaded{border-color:rgba(16,185,129,0.4);background:rgba(16,185,129,0.08);color:var(--green);}
+
+.upload-status{font-size:11px;color:var(--text3);}
+.upload-status.ok{color:var(--green);font-weight:600;}
+.upload-status.err{color:var(--red);font-weight:600;}
+
+/* â”€â”€ CONTROLS BAR â”€â”€ */
+.controls-bar{
+  display:flex;flex-wrap:wrap;align-items:flex-end;gap:12px;
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--radius);padding:14px 18px;margin-bottom:16px;
+  box-shadow:0 2px 20px rgba(0,0,0,0.22);
+}
+.ctrl-group{display:flex;flex-direction:column;gap:5px;}
+.ctrl-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.7px;color:var(--text3);}
+.ctrl-select,.ctrl-date{
+  padding:7px 11px;border-radius:9px;border:1px solid var(--border2);
+  background:var(--card2);color:var(--text);font-size:12.5px;
+  font-family:'Inter',sans-serif;cursor:pointer;min-width:130px;
+  outline:none;transition:var(--transition);
+}
+.ctrl-select:focus,.ctrl-date:focus{border-color:var(--indigo);box-shadow:0 0 0 3px rgba(99,102,241,0.15);}
+.ctrl-date::-webkit-calendar-picker-indicator{filter:invert(0.7);cursor:pointer;}
+body.light .ctrl-date::-webkit-calendar-picker-indicator{filter:none;}
+
+/* â”€â”€ RANGE BAR â”€â”€ */
+.range-bar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:11px 16px;background:var(--card);border:1px solid var(--border);
+  border-radius:var(--radius);margin-bottom:16px;flex-wrap:wrap;gap:8px;
+  box-shadow:0 2px 20px rgba(0,0,0,0.22);
+}
+.range-info{font-size:12.5px;color:var(--text2);font-weight:500;}
+.range-info strong{color:var(--cyan);}
+.preset-btns{display:flex;align-items:center;gap:4px;}
+.preset-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--text3);margin-right:4px;}
+.preset-btn{
+  padding:4px 11px;border-radius:7px;border:1px solid var(--border2);
+  background:none;color:var(--text2);font-size:11.5px;font-weight:700;
+  cursor:pointer;font-family:'Inter',sans-serif;transition:var(--transition);
+}
+.preset-btn:hover{background:var(--hover);color:var(--text);}
+.preset-btn.active{background:var(--indigo);border-color:var(--indigo);color:#fff;box-shadow:0 2px 14px rgba(99,102,241,0.38);}
+
+/* â”€â”€ KPI CARDS â”€â”€ */
+.kpi-row{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
+  gap:14px;margin-bottom:16px;
+}
+.kpi-card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--radius);padding:18px 20px;
+  position:relative;overflow:hidden;transition:var(--transition);
+  box-shadow:0 2px 20px rgba(0,0,0,0.28);
+}
+.kpi-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--kpi-color,#6366f1),color-mix(in srgb,var(--kpi-color,#6366f1) 40%,transparent));
+  border-radius:var(--radius) var(--radius) 0 0;
+}
+.kpi-card::after{
+  content:'';position:absolute;top:0;right:0;width:90px;height:90px;
+  background:radial-gradient(circle at top right,rgba(99,102,241,0.05) 0%,transparent 70%);
+  pointer-events:none;
+}
+.kpi-card:hover{border-color:var(--border2);transform:translateY(-2px);box-shadow:0 10px 36px rgba(0,0,0,0.38);}
+.kpi-label{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--text3);margin-bottom:10px;}
+.kpi-value{font-size:28px;font-weight:800;letter-spacing:-1px;color:var(--text);font-variant-numeric:tabular-nums;line-height:1;margin-bottom:8px;}
+.kpi-delta{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:700;padding:2px 8px;border-radius:6px;}
+.kpi-delta.up{background:rgba(16,185,129,0.12);color:var(--green);border:1px solid rgba(16,185,129,0.2);}
+.kpi-delta.down{background:rgba(244,63,94,0.12);color:var(--red);border:1px solid rgba(244,63,94,0.2);}
+.kpi-meta{font-size:10.5px;color:var(--text3);margin-top:5px;}
+
+/* â”€â”€ CHARTS â”€â”€ */
+.chart-card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--radius);padding:22px;margin-bottom:16px;
+  box-shadow:0 2px 20px rgba(0,0,0,0.28),inset 0 1px 0 rgba(255,255,255,0.03);
+  position:relative;overflow:hidden;
+}
+.chart-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.05) 50%,transparent);
+}
+body.light .chart-card::before{background:linear-gradient(90deg,transparent,rgba(0,0,0,0.04) 50%,transparent);}
+.chart-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:18px;}
+.chart-title{font-size:14px;font-weight:700;color:var(--text);letter-spacing:-0.3px;}
+.chart-subtitle{font-size:11.5px;color:var(--text3);margin-top:3px;}
+.chart-wrap{position:relative;height:320px;}
+.chart-wrap-lg{position:relative;height:390px;}
+.chart-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
+@media(max-width:900px){.chart-row{grid-template-columns:1fr;}}
+
+/* â”€â”€ COPY BTN â”€â”€ */
+.copy-btn{
+  display:inline-flex;align-items:center;gap:5px;padding:5px 11px;
+  border-radius:7px;border:1px solid var(--border2);background:none;
+  color:var(--text3);font-size:11px;font-weight:600;cursor:pointer;
+  font-family:'Inter',sans-serif;transition:var(--transition);white-space:nowrap;
+}
+.copy-btn:hover{border-color:var(--indigo);color:var(--text);background:rgba(99,102,241,0.08);}
+.copy-btn.copied{border-color:var(--green);color:var(--green);background:rgba(16,185,129,0.08);}
+
+/* â”€â”€ DATA TABLE â”€â”€ */
+.data-table-wrap{overflow-x:auto;}
+.data-table{width:100%;border-collapse:collapse;font-size:12px;min-width:700px;}
+.data-table th{
+  padding:9px 13px;text-align:center;font-size:10px;font-weight:700;
+  text-transform:uppercase;letter-spacing:0.7px;color:var(--text3);
+  border-bottom:2px solid var(--border);background:var(--card2);white-space:nowrap;
+  position:sticky;top:0;
+}
+.data-table th.col-label{text-align:left;min-width:170px;}
+.data-table td{
+  padding:7px 13px;border-bottom:1px solid var(--border);
+  text-align:center;white-space:nowrap;vertical-align:middle;
+}
+.data-table td.row-label{
+  text-align:left;font-weight:600;font-size:11px;color:var(--text2);
+  background:var(--card2);position:sticky;left:0;z-index:1;
+  border-right:1px solid var(--border);min-width:160px;
+  padding-left:15px;text-transform:uppercase;letter-spacing:0.4px;
+}
+.data-table tr:hover td{background:var(--hover);}
+.data-table tr:hover td.row-label{background:var(--hover);}
+.tbl-section-hdr td{
+  background:rgba(99,102,241,0.08)!important;color:var(--indigo);
+  font-size:10px;font-weight:800;letter-spacing:0.8px;text-transform:uppercase;
+  padding:5px 15px;border-top:1px solid rgba(99,102,241,0.15);
+}
+.data-table td.val{font-weight:600;color:var(--text);font-variant-numeric:tabular-nums;}
+.data-table td.val-latest{
+  font-weight:800;font-size:13px;color:var(--cyan);
+  background:rgba(34,211,238,0.07)!important;font-variant-numeric:tabular-nums;
+}
+
+.pill{display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:20px;font-size:10.5px;font-weight:700;}
+.pill-up  {background:rgba(16,185,129,0.12);color:var(--green);border:1px solid rgba(16,185,129,0.2);}
+.pill-down{background:rgba(244,63,94,0.12);color:var(--red);border:1px solid rgba(244,63,94,0.2);}
+.pill-neu {background:rgba(90,100,128,0.1);color:var(--text3);}
+
+.tbl-cols-ctrl{display:flex;align-items:center;gap:6px;}
+.tbl-cols-ctrl label{font-size:10.5px;color:var(--text3);font-weight:600;}
+
+/* â”€â”€ DAY COMPARISON â”€â”€ */
+.dcmp-table{width:100%;border-collapse:collapse;font-size:12px;min-width:520px;}
+.dcmp-table th{
+  padding:9px 13px;text-align:center;border-bottom:2px solid var(--border);
+  font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;
+  color:var(--text3);background:var(--card2);white-space:nowrap;
+}
+.dcmp-table th.col-kpi{text-align:left;min-width:150px;}
+.dcmp-table td{
+  padding:8px 13px;border-bottom:1px solid var(--border);
+  text-align:center;white-space:nowrap;vertical-align:middle;
+}
+.dcmp-table td.col-kpi{
+  text-align:left;font-weight:600;font-size:11.5px;color:var(--text);
+  position:sticky;left:0;background:var(--card2);
+  border-right:1px solid var(--border);z-index:1;
+}
+.dcmp-table tr:hover td{background:var(--hover);}
+.dcmp-selected{background:rgba(34,211,238,0.07)!important;border-left:2px solid var(--cyan);}
+.dcmp-selected .dcmp-val{color:var(--cyan);}
+.dcmp-section-hdr td{
+  background:rgba(99,102,241,0.08)!important;color:var(--indigo);
+  font-size:10px;font-weight:800;letter-spacing:0.8px;text-transform:uppercase;padding:5px 13px;
+}
+.dcmp-val{font-weight:700;font-size:13px;color:var(--text);font-variant-numeric:tabular-nums;}
+.dcmp-badge{display:inline-flex;align-items:center;padding:1px 7px;border-radius:12px;font-size:10px;font-weight:700;margin-top:2px;}
+.dcmp-up  {background:rgba(16,185,129,0.12);color:var(--green);border:1px solid rgba(16,185,129,0.2);}
+.dcmp-down{background:rgba(244,63,94,0.12);color:var(--red);border:1px solid rgba(244,63,94,0.2);}
+.dcmp-neu {background:rgba(90,100,128,0.1);color:var(--text3);}
+.dcmp-week-label{font-size:9.5px;color:var(--text3);display:block;margin-top:1px;}
+.dcmp-ctrl-row{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;margin-bottom:18px;}
+.dcmp-ctrl-group{display:flex;flex-direction:column;gap:4px;}
+.dcmp-ctrl-group label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--text3);}
+.dcmp-ctrl-group input[type="date"],.dcmp-ctrl-group select{
+  padding:7px 11px;border-radius:8px;border:1px solid var(--border2);
+  background:var(--card2);color:var(--text);font-size:12px;
+  font-family:'Inter',sans-serif;cursor:pointer;outline:none;transition:var(--transition);
+}
+.dcmp-ctrl-group input[type="date"]:focus,.dcmp-ctrl-group select:focus{border-color:var(--indigo);}
+.dcmp-ctrl-group input[type="date"]::-webkit-calendar-picker-indicator{filter:invert(0.7);}
+body.light .dcmp-ctrl-group input[type="date"]::-webkit-calendar-picker-indicator{filter:none;}
+.dcmp-empty{text-align:center;padding:40px 20px;color:var(--text3);font-size:13px;}
+
+/* â”€â”€ INSIGHTS â”€â”€ */
+.insight-card{
+  background:var(--card);border:1px solid var(--border);border-left:3px solid var(--red);
+  border-radius:var(--radius);padding:16px 18px;margin-bottom:12px;
+  box-shadow:0 2px 20px rgba(0,0,0,0.22);transition:var(--transition);
+}
+.insight-card:hover{transform:translateX(3px);}
+.insight-card.warning{border-left-color:var(--amber);}
+.insight-card.info{border-left-color:var(--cyan);}
+.insight-card.success{border-left-color:var(--green);}
+.insight-title{font-weight:700;font-size:13.5px;margin-bottom:6px;letter-spacing:-0.2px;}
+.insight-detail{font-size:12.5px;color:var(--text2);line-height:1.65;}
+
+/* â”€â”€ NOTABLE CHANGES â”€â”€ */
+.changes-table{width:100%;border-collapse:collapse;}
+.changes-table th,.changes-table td{padding:10px 15px;text-align:left;border-bottom:1px solid var(--border);font-size:12.5px;}
+.changes-table th{
+  background:var(--card2);color:var(--text3);font-weight:700;
+  text-transform:uppercase;font-size:10px;letter-spacing:0.6px;position:sticky;top:0;
+}
+.changes-table tr:hover td{background:var(--hover);}
+
+.badge{display:inline-block;padding:2px 9px;border-radius:6px;font-size:10.5px;font-weight:700;letter-spacing:0.2px;}
+.badge-red   {background:rgba(244,63,94,0.12);color:var(--red);border:1px solid rgba(244,63,94,0.2);}
+.badge-green {background:rgba(16,185,129,0.12);color:var(--green);border:1px solid rgba(16,185,129,0.2);}
+.badge-amber {background:rgba(245,158,11,0.12);color:var(--amber);border:1px solid rgba(245,158,11,0.2);}
+.badge-cyan  {background:rgba(34,211,238,0.12);color:var(--cyan);border:1px solid rgba(34,211,238,0.2);}
+.badge-indigo{background:rgba(99,102,241,0.12);color:var(--indigo);border:1px solid rgba(99,102,241,0.2);}
+
+/* â”€â”€ MODAL â”€â”€ */
+.modal-overlay{
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,0.72);
+  z-index:500;justify-content:center;align-items:center;backdrop-filter:blur(8px);
+}
+.modal-overlay.show{display:flex;}
+.modal{
+  background:var(--card);border:1px solid var(--border2);border-radius:18px;
+  padding:26px;width:90%;max-width:480px;
+  box-shadow:0 24px 64px rgba(0,0,0,0.6);
+  animation:modalIn 0.2s cubic-bezier(0.34,1.56,0.64,1);
+}
+@keyframes modalIn{from{opacity:0;transform:scale(0.95) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.modal h3{font-size:15.5px;font-weight:800;margin-bottom:18px;letter-spacing:-0.3px;}
+.form-group{margin-bottom:13px;}
+.form-group label{display:block;font-size:10.5px;color:var(--text3);margin-bottom:5px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;}
+.form-group input,.form-group select,.form-group textarea{
+  width:100%;padding:8px 12px;border-radius:9px;border:1px solid var(--border2);
+  background:var(--card2);color:var(--text);font-size:13px;
+  font-family:'Inter',sans-serif;outline:none;transition:var(--transition);
+}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--indigo);box-shadow:0 0 0 3px rgba(99,102,241,0.15);}
+.form-group textarea{resize:vertical;min-height:60px;}
+.form-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:18px;}
+
+.btn{
+  display:inline-flex;align-items:center;gap:5px;padding:7px 15px;
+  border-radius:9px;border:1px solid var(--border2);background:var(--card2);
+  color:var(--text2);font-size:12.5px;font-weight:600;cursor:pointer;
+  font-family:'Inter',sans-serif;transition:var(--transition);letter-spacing:-0.1px;
+}
+.btn:hover{background:var(--hover);color:var(--text);}
+.btn-primary{background:var(--indigo);border-color:var(--indigo);color:#fff;box-shadow:0 2px 14px rgba(99,102,241,0.32);}
+.btn-primary:hover{opacity:0.88;box-shadow:0 4px 20px rgba(99,102,241,0.45);}
+.btn-danger{background:var(--red);border-color:var(--red);color:#fff;}
+.btn-danger:hover{opacity:0.88;}
+.btn-sm{padding:4px 11px;font-size:11.5px;}
+
+/* â”€â”€ SECTION HEADER â”€â”€ */
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
+.section-header h3{font-size:14.5px;font-weight:800;letter-spacing:-0.3px;}
+
+/* â”€â”€ TOAST â”€â”€ */
+.toast{
+  position:fixed;bottom:24px;left:50%;
+  transform:translateX(-50%) translateY(60px);
+  background:var(--green);color:#fff;padding:10px 20px;border-radius:10px;
+  font-size:13px;font-weight:600;z-index:600;
+  transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1),opacity 0.3s;
+  opacity:0;pointer-events:none;box-shadow:0 4px 22px rgba(16,185,129,0.42);
+}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+
+/* â”€â”€ EMPTY STATE â”€â”€ */
+.empty-state{text-align:center;padding:60px 20px;color:var(--text3);}
+.empty-state .icon{font-size:42px;margin-bottom:12px;opacity:0.8;}
+
+/* â”€â”€ MISC â”€â”€ */
+.mono{font-family:'JetBrains Mono',monospace;}
+.text-cyan{color:var(--cyan);}
+.text-muted{color:var(--text3);}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-brand">
+    <div class="brand-icon">ðŸ“Š</div>
+    <div>
+      <div class="brand-name">IndiaMART</div>
+      <div class="brand-sub">Traffic Intelligence</div>
+    </div>
+  </div>
+
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="switchTab('dashboard',this)">
+      <span class="dot"></span>Dashboard
+    </button>
+    <button class="nav-tab" onclick="switchTab('changes',this)">
+      <span class="dot"></span>Notable Changes
+    </button>
+    <button class="nav-tab" onclick="switchTab('insights',this)">
+      <span class="dot"></span>Insights
+    </button>
+  </div>
+
+  <div class="topbar-right">
+    <div class="status-pill">
+      <span class="status-dot"></span>Live Data
+    </div>
+    <button class="theme-btn" id="theme-btn" onclick="toggleTheme()">â˜€ Light</button>
+  </div>
+</div>
+
+<!-- HIDDEN FILE INPUTS -->
+<input type="file" id="file-gsc" accept=".xlsx,.xls,.csv" style="display:none" onchange="handleFile('gsc',this)">
+<input type="file" id="file-ga-overall-daily" accept=".xlsx,.xls,.csv" style="display:none" onchange="handleFile('ga-overall-daily',this)">
+<input type="file" id="file-ga-organic-daily" accept=".xlsx,.xls,.csv" style="display:none" onchange="handleFile('ga-organic-daily',this)">
+<input type="file" id="file-ga-internal-daily" accept=".xlsx,.xls,.csv" style="display:none" onchange="handleFile('ga-internal-daily',this)">
+<input type="file" id="file-biz" accept=".xlsx,.xls,.csv" style="display:none" onchange="handleFile('biz',this)">
+
+<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• TAB: DASHBOARD â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+<div id="tab-dashboard" class="tab-content active">
+<div class="page">
+
+  <!-- Upload Section -->
+  <div class="upload-section">
+    <div class="upload-header">
+      <div class="upload-header-left">
+        <h3>ðŸ“ Data Sources</h3>
+        <span class="badge badge-green" style="font-size:10px">âœ“ Preloaded</span>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <button class="btn btn-sm" onclick="toggleUpload()">â†• Toggle</button>
+        <button class="btn btn-primary btn-sm" onclick="loadTestData()">ðŸ§ª Demo</button>
+      </div>
+    </div>
+    <div id="upload-body" class="upload-body">
+      <div class="upload-section-label">Google Search Console</div>
+      <table class="upload-grid-table">
+        <thead><tr>
+          <th style="width:100px">Type</th>
+          <th>Description</th>
+          <th style="width:150px">Action</th>
+          <th>Status</th>
+        </tr></thead>
+        <tbody>
+          <tr>
+            <td><span class="type-badge type-gsc">GSC Daily</span></td>
+            <td style="color:var(--text2)">Search Console â€” clicks, impressions, CTR, position</td>
+            <td><button class="upload-btn" id="zone-gsc" onclick="document.getElementById('file-gsc').click()">â¬† Upload file</button></td>
+            <td><span class="upload-status" id="status-gsc">â€”</span></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="upload-section-label" style="margin-top:14px">GA Daily Files</div>
+      <table class="upload-grid-table">
+        <thead><tr>
+          <th style="width:100px">Journey</th>
+          <th>Description</th>
+          <th style="width:150px">Action</th>
+          <th>Status</th>
+        </tr></thead>
+        <tbody>
+          <tr>
+            <td><span class="type-badge type-daily">Overall</span></td>
+            <td style="color:var(--text2)">All traffic â€” daily users across PDP, MCAT, Company, Home</td>
+            <td><button class="upload-btn" id="zone-ga-overall-daily" onclick="document.getElementById('file-ga-overall-daily').click()">â¬† Upload file</button></td>
+            <td><span class="upload-status" id="status-ga-overall-daily">â€”</span></td>
+          </tr>
+          <tr>
+            <td><span class="type-badge type-daily">Organic</span></td>
+            <td style="color:var(--text2)">Organic search â€” daily users per page type</td>
+            <td><button class="upload-btn" id="zone-ga-organic-daily" onclick="document.getElementById('file-ga-organic-daily').click()">â¬† Upload file</button></td>
+            <td><span class="upload-status" id="status-ga-organic-daily">â€”</span></td>
+          </tr>
+          <tr>
+            <td><span class="type-badge type-daily">Internal</span></td>
+            <td style="color:var(--text2)">Internal navigation â€” daily users per page type</td>
+            <td><button class="upload-btn" id="zone-ga-internal-daily" onclick="document.getElementById('file-ga-internal-daily').click()">â¬† Upload file</button></td>
+            <td><span class="upload-status" id="status-ga-internal-daily">â€”</span></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="upload-section-label" style="margin-top:14px">Business Metrics</div>
+      <table class="upload-grid-table">
+        <thead><tr>
+          <th style="width:100px">Type</th>
+          <th>Description</th>
+          <th style="width:150px">Action</th>
+          <th>Status</th>
+        </tr></thead>
+        <tbody>
+          <tr>
+            <td><span class="type-badge type-biz">Biz Weekly</span></td>
+            <td style="color:var(--text2)">Business KPIs â€” unique senders, requirements, conversions</td>
+            <td><button class="upload-btn" id="zone-biz" onclick="document.getElementById('file-biz').click()">â¬† Upload file</button></td>
+            <td><span class="upload-status" id="status-biz">â€” Not loaded</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Controls Bar -->
+  <div class="controls-bar">
+    <div class="ctrl-group">
+      <span class="ctrl-label">From Date</span>
+      <input type="date" id="f-date-from" class="ctrl-date" onchange="onCustomDateChange()">
+    </div>
+    <div class="ctrl-group">
+      <span class="ctrl-label">To Date</span>
+      <input type="date" id="f-date-to" class="ctrl-date" onchange="onCustomDateChange()">
+    </div>
+    <input type="hidden" id="f-daterange" value="90">
+    <div class="ctrl-group">
+      <span class="ctrl-label">Journey Type</span>
+      <select id="f-journey" class="ctrl-select" onchange="refreshDashboard()">
+        <option value="overall">Overall</option>
+        <option value="organic">Organic</option>
+        <option value="internal">Internal</option>
+      </select>
+    </div>
+    <div class="ctrl-group">
+      <span class="ctrl-label">Page Type</span>
+      <select id="f-page" class="ctrl-select" onchange="refreshDashboard()">
+        <option value="overall">Overall (All Pages)</option>
+        <option value="pdp" selected>PDP</option>
+        <option value="mcat">MCAT</option>
+        <option value="company">Company</option>
+        <option value="home">Home</option>
+      </select>
+    </div>
+    <div class="ctrl-group">
+      <span class="ctrl-label">Primary KPI</span>
+      <select id="f-kpi1" class="ctrl-select" onchange="refreshDashboard()">
+        <option value="impressions">GSC: Impressions</option>
+        <option value="clicks" selected>GSC: Clicks</option>
+        <option value="ctr">GSC: CTR</option>
+        <option value="position">GSC: Avg Position</option>
+        <option value="users">GA: Users</option>
+        <option value="unique_senders">Biz: Unique Senders</option>
+        <option value="requirements">Biz: Requirements</option>
+      </select>
+    </div>
+    <div class="ctrl-group">
+      <span class="ctrl-label">Secondary KPI</span>
+      <select id="f-kpi2" class="ctrl-select" onchange="refreshDashboard()">
+        <option value="">â€” None â€”</option>
+        <option value="impressions">GSC: Impressions</option>
+        <option value="clicks">GSC: Clicks</option>
+        <option value="ctr">GSC: CTR</option>
+        <option value="position">GSC: Avg Position</option>
+        <option value="users" selected>GA: Users</option>
+        <option value="unique_senders">Biz: Unique Senders</option>
+        <option value="requirements">Biz: Requirements</option>
+      </select>
+    </div>
+    <div class="ctrl-group">
+      <span class="ctrl-label">3rd KPI</span>
+      <select id="f-kpi3" class="ctrl-select" onchange="refreshDashboard()">
+        <option value="" selected>â€” None â€”</option>
+        <option value="impressions">GSC: Impressions</option>
+        <option value="clicks">GSC: Clicks</option>
+        <option value="ctr">GSC: CTR</option>
+        <option value="position">GSC: Avg Position</option>
+        <option value="users">GA: Users</option>
+        <option value="unique_senders">Biz: Unique Senders</option>
+        <option value="requirements">Biz: Requirements</option>
+      </select>
+    </div>
+    <div class="ctrl-group">
+      <span class="ctrl-label">4th KPI</span>
+      <select id="f-kpi4" class="ctrl-select" onchange="refreshDashboard()">
+        <option value="" selected>â€” None â€”</option>
+        <option value="impressions">GSC: Impressions</option>
+        <option value="clicks">GSC: Clicks</option>
+        <option value="ctr">GSC: CTR</option>
+        <option value="position">GSC: Avg Position</option>
+        <option value="users">GA: Users</option>
+        <option value="unique_senders">Biz: Unique Senders</option>
+        <option value="requirements">Biz: Requirements</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Range Bar -->
+  <div class="range-bar">
+    <div class="range-info" id="range-info">Loading dataâ€¦</div>
+    <div class="preset-btns">
+      <span class="preset-label">Presets:</span>
+      <button id="qbtn-7"   class="preset-btn" onclick="quickRange(7)">7D</button>
+      <button id="qbtn-30"  class="preset-btn" onclick="quickRange(30)">30D</button>
+      <button id="qbtn-90"  class="preset-btn active" onclick="quickRange(90)">90D</button>
+      <button id="qbtn-180" class="preset-btn" onclick="quickRange(180)">180D</button>
+      <button id="qbtn-all" class="preset-btn" onclick="quickRange('all')">All</button>
+    </div>
+  </div>
+
+  <!-- KPI Cards -->
+  <div class="kpi-row" id="kpi-cards"></div>
+
+  <!-- Main Trend Chart -->
+  <div class="chart-card">
+    <div class="chart-header">
+      <div>
+        <div class="chart-title" id="trend-chart-title">Daily Trend with 7-Day Rolling Average</div>
+        <div class="chart-subtitle">Solid = raw daily Â· Dashed = rolling avg</div>
+      </div>
+      <button class="copy-btn" onclick="copyChart('chart-trend',this)">âŽ˜ Copy</button>
+    </div>
+    <div class="chart-wrap-lg"><canvas id="chart-trend"></canvas></div>
+  </div>
+
+  <!-- Data Summary Table -->
+  <div class="chart-card">
+    <div class="chart-header">
+      <div>
+        <div class="chart-title">Data Summary Table</div>
+        <div class="chart-subtitle">Latest value, day-over-day delta, and % vs 7-day average</div>
+      </div>
+      <div class="tbl-cols-ctrl">
+        <label>Cols:</label>
+        <select id="tbl-cols-select" class="ctrl-select" style="min-width:100px;padding:5px 8px;font-size:11.5px;" onchange="renderDataTable()">
+          <option value="14">Last 14</option>
+          <option value="30" selected>Last 30</option>
+          <option value="60">Last 60</option>
+          <option value="all">All</option>
+        </select>
+      </div>
+    </div>
+    <div class="data-table-wrap">
+      <div id="data-table-container"></div>
+    </div>
+  </div>
+
+  <!-- DoD + Bar row -->
+  <div class="chart-row">
+    <div class="chart-card" style="margin-bottom:0">
+      <div class="chart-header">
+        <div>
+          <div class="chart-title" id="period-chart-title">Day-over-Day Change</div>
+          <div class="chart-subtitle">Last 14 days â€” primary KPI</div>
+        </div>
+        <button class="copy-btn" onclick="copyChart('chart-wow',this)">âŽ˜ Copy</button>
+      </div>
+      <div class="chart-wrap"><canvas id="chart-wow"></canvas></div>
+    </div>
+    <div class="chart-card" style="margin-bottom:0">
+      <div class="chart-header">
+        <div>
+          <div class="chart-title" id="bar-chart-title">Last 7 Days â€” Bar Comparison</div>
+          <div class="chart-subtitle">All active KPIs side by side</div>
+        </div>
+        <button class="copy-btn" onclick="copyChart('chart-bar',this)">âŽ˜ Copy</button>
+      </div>
+      <div class="chart-wrap"><canvas id="chart-bar"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Same-Day Weekly Comparison -->
+  <div class="chart-card" id="day-comparison-section" style="margin-top:16px">
+    <div class="chart-header" style="margin-bottom:12px">
+      <div>
+        <div class="chart-title">Same-Day Weekly Comparison</div>
+        <div class="chart-subtitle">Compare a date vs. the same weekday across previous weeks</div>
+      </div>
+    </div>
+    <div class="dcmp-ctrl-row">
+      <div class="dcmp-ctrl-group">
+        <label>Compare Date</label>
+        <input type="date" id="dcmp-date" onchange="renderDayComparison()">
+      </div>
+      <div class="dcmp-ctrl-group">
+        <label>Weeks Back</label>
+        <select id="dcmp-weeks" onchange="renderDayComparison()">
+          <option value="4">4 Weeks</option>
+          <option value="7" selected>7 Weeks</option>
+          <option value="13">13 Weeks</option>
+          <option value="20">20 Weeks</option>
+          <option value="26">26 Weeks</option>
+        </select>
+      </div>
+      <div class="dcmp-ctrl-group">
+        <label>Show KPIs</label>
+        <select id="dcmp-kpi-filter" onchange="renderDayComparison()">
+          <option value="active" selected>Active KPIs Only</option>
+          <option value="all">All KPIs</option>
+        </select>
+      </div>
+    </div>
+    <div style="overflow-x:auto">
+      <div id="day-comparison-container">
+        <div class="dcmp-empty">ðŸ“… Select a date above to see week-over-week comparison.</div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /page -->
+</div><!-- /tab-dashboard -->
+
+<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• TAB: NOTABLE CHANGES â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+<div id="tab-changes" class="tab-content">
+<div class="page">
+  <div class="section-header">
+    <h3>Notable Changes Log</h3>
+    <button class="btn btn-primary" onclick="openChangeModal()">+ Add Change</button>
+  </div>
+  <div class="chart-card" style="overflow-x:auto;padding:0">
+    <table class="changes-table" id="changes-table">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Impact</th>
+          <th>Affected KPIs</th>
+          <th>Pages</th>
+          <th style="width:60px"></th>
+        </tr>
+      </thead>
+      <tbody id="changes-body"></tbody>
+    </table>
+    <div class="empty-state" id="changes-empty">
+      <div class="icon">ðŸ“‹</div>
+      <div>No notable changes logged yet.<br><span style="color:var(--text3)">Click "+ Add Change" to start.</span></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• TAB: INSIGHTS â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+<div id="tab-insights" class="tab-content">
+<div class="page">
+  <div class="section-header">
+    <h3>Auto-Generated Insights</h3>
+    <button class="btn btn-primary" onclick="generateInsights()">â†º Refresh</button>
+  </div>
+  <div id="insights-container">
+    <div class="empty-state">
+      <div class="icon">ðŸ’¡</div>
+      <div>Upload data files to generate insights.</div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modal-change">
+  <div class="modal">
+    <h3 id="modal-title">Add Notable Change</h3>
+    <div class="form-group">
+      <label>Date</label>
+      <input type="date" id="ch-date">
+    </div>
+    <div class="form-group">
+      <label>Change Type</label>
+      <select id="ch-type">
+        <option>Algorithm Update</option>
+        <option>Site Change</option>
+        <option>Campaign</option>
+        <option>Holiday</option>
+        <option>Bug</option>
+        <option>Other</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Description</label>
+      <textarea id="ch-desc" placeholder="Describe the changeâ€¦"></textarea>
+    </div>
+    <div class="form-group">
+      <label>Impact</label>
+      <select id="ch-impact">
+        <option>Positive</option>
+        <option>Negative</option>
+        <option>Neutral</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Affected KPIs (comma separated)</label>
+      <input type="text" id="ch-kpis" placeholder="e.g. Clicks, Users">
+    </div>
+    <div class="form-group">
+      <label>Affected Pages</label>
+      <input type="text" id="ch-pages" placeholder="e.g. PDP, MCAT">
+    </div>
+    <div class="form-actions">
+      <button class="btn" onclick="closeChangeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveChange()">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast">âœ“ Copied to clipboard</div>
+
+<script>
+const REAL_DATA_GSC = [{"date":"2025-11-04","clicks":1433442,"impressions":61751885,"ctr":2.32,"position":5.9},{"date":"2025-11-05","clicks":1413714,"impressions":60978244,"ctr":2.32,"position":5.9},{"date":"2025-11-06","clicks":1385735,"impressions":60287518,"ctr":2.3,"position":6.0},{"date":"2025-11-07","clicks":1343856,"impressions":59635911,"ctr":2.25,"position":6.0},{"date":"2025-11-08","clicks":1210067,"impressions":55389884,"ctr":2.18,"position":6.1},{"date":"2025-11-09","clicks":1200002,"impressions":53375657,"ctr":2.25,"position":6.1},{"date":"2025-11-10","clicks":1362060,"impressions":57738037,"ctr":2.36,"position":6.1},{"date":"2025-11-11","clicks":1350131,"impressions":57623638,"ctr":2.34,"position":6.0},{"date":"2025-11-12","clicks":1362783,"impressions":59445721,"ctr":2.29,"position":5.9},{"date":"2025-11-13","clicks":1337341,"impressions":59189101,"ctr":2.26,"position":6.0},{"date":"2025-11-14","clicks":1259277,"impressions":56381035,"ctr":2.23,"position":6.0},{"date":"2025-11-15","clicks":1169997,"impressions":54321241,"ctr":2.15,"position":5.9},{"date":"2025-11-16","clicks":1173811,"impressions":54857694,"ctr":2.14,"position":5.9},{"date":"2025-11-17","clicks":1415195,"impressions":61197872,"ctr":2.31,"position":5.9},{"date":"2025-11-18","clicks":1442701,"impressions":61597765,"ctr":2.34,"position":5.9},{"date":"2025-11-19","clicks":1420308,"impressions":62375470,"ctr":2.28,"position":6.1},{"date":"2025-11-20","clicks":1402648,"impressions":63205084,"ctr":2.22,"position":6.3},{"date":"2025-11-21","clicks":1317953,"impressions":60882312,"ctr":2.16,"position":6.2},{"date":"2025-11-22","clicks":1180898,"impressions":56457876,"ctr":2.09,"position":6.2},{"date":"2025-11-23","clicks":1169097,"impressions":57268701,"ctr":2.04,"position":6.3},{"date":"2025-11-24","clicks":1367014,"impressions":63131965,"ctr":2.17,"position":6.3},{"date":"2025-11-25","clicks":1352597,"impressions":62452781,"ctr":2.17,"position":6.3},{"date":"2025-11-26","clicks":1340696,"impressions":61971824,"ctr":2.16,"position":6.4},{"date":"2025-11-27","clicks":1338469,"impressions":61883089,"ctr":2.16,"position":6.5},{"date":"2025-11-28","clicks":1298652,"impressions":60524390,"ctr":2.15,"position":6.4},{"date":"2025-11-29","clicks":1144587,"impressions":55935737,"ctr":2.05,"position":6.3},{"date":"2025-11-30","clicks":1092503,"impressions":55121090,"ctr":1.98,"position":6.6},{"date":"2025-12-01","clicks":1339924,"impressions":62629135,"ctr":2.14,"position":6.6},{"date":"2025-12-02","clicks":1365147,"impressions":63270131,"ctr":2.16,"position":6.4},{"date":"2025-12-03","clicks":1332137,"impressions":62503558,"ctr":2.13,"position":6.4},{"date":"2025-12-04","clicks":1320914,"impressions":62808325,"ctr":2.1,"position":6.7},{"date":"2025-12-05","clicks":1264186,"impressions":60863428,"ctr":2.08,"position":6.7},{"date":"2025-12-06","clicks":1124235,"impressions":57269532,"ctr":1.96,"position":6.5},{"date":"2025-12-07","clicks":1154674,"impressions":58357143,"ctr":1.98,"position":6.5},{"date":"2025-12-08","clicks":1382733,"impressions":65720886,"ctr":2.1,"position":6.9},{"date":"2025-12-09","clicks":1358798,"impressions":64064548,"ctr":2.12,"position":6.5},{"date":"2025-12-10","clicks":1326819,"impressions":63530506,"ctr":2.09,"position":6.3},{"date":"2025-12-11","clicks":1296023,"impressions":63580933,"ctr":2.04,"position":6.5},{"date":"2025-12-12","clicks":1256598,"impressions":61374734,"ctr":2.05,"position":6.5},{"date":"2025-12-13","clicks":1132028,"impressions":58574832,"ctr":1.93,"position":6.5},{"date":"2025-12-14","clicks":1121108,"impressions":58831559,"ctr":1.91,"position":6.6},{"date":"2025-12-15","clicks":1366844,"impressions":65933275,"ctr":2.07,"position":6.5},{"date":"2025-12-16","clicks":1373484,"impressions":66113120,"ctr":2.08,"position":6.7},{"date":"2025-12-17","clicks":1372647,"impressions":65067910,"ctr":2.11,"position":6.2},{"date":"2025-12-18","clicks":1364716,"impressions":64934843,"ctr":2.1,"position":6.3},{"date":"2025-12-19","clicks":1280379,"impressions":62565686,"ctr":2.05,"position":6.5},{"date":"2025-12-20","clicks":1151550,"impressions":58955533,"ctr":1.95,"position":6.4},{"date":"2025-12-21","clicks":1136341,"impressions":59280830,"ctr":1.92,"position":6.6},{"date":"2025-12-22","clicks":1367226,"impressions":66112818,"ctr":2.07,"position":6.5},{"date":"2025-12-23","clicks":1346217,"impressions":64924863,"ctr":2.07,"position":6.4},{"date":"2025-12-24","clicks":1255637,"impressions":61458973,"ctr":2.04,"position":6.5},{"date":"2025-12-25","clicks":1246141,"impressions":60766128,"ctr":2.05,"position":6.5},{"date":"2025-12-26","clicks":1299396,"impressions":62234423,"ctr":2.09,"position":6.3},{"date":"2025-12-27","clicks":1178863,"impressions":59342433,"ctr":1.99,"position":6.2},{"date":"2025-12-28","clicks":1167077,"impressions":59646414,"ctr":1.96,"position":6.3},{"date":"2025-12-29","clicks":1363318,"impressions":65743012,"ctr":2.07,"position":6.3},{"date":"2025-12-30","clicks":1332669,"impressions":64251135,"ctr":2.07,"position":6.3},{"date":"2025-12-31","clicks":1028286,"impressions":54312386,"ctr":1.89,"position":6.4},{"date":"2026-01-01","clicks":1130473,"impressions":58281748,"ctr":1.94,"position":6.7},{"date":"2026-01-02","clicks":1339911,"impressions":65695283,"ctr":2.04,"position":6.2},{"date":"2026-01-03","clicks":1214633,"impressions":61977088,"ctr":1.96,"position":6.1},{"date":"2026-01-04","clicks":1191898,"impressions":62206955,"ctr":1.92,"position":6.3},{"date":"2026-01-05","clicks":1402962,"impressions":68290400,"ctr":2.05,"position":6.3},{"date":"2026-01-06","clicks":1406971,"impressions":68578166,"ctr":2.05,"position":5.9},{"date":"2026-01-07","clicks":1375263,"impressions":69213092,"ctr":1.99,"position":6.4},{"date":"2026-01-08","clicks":1356224,"impressions":69070311,"ctr":1.96,"position":6.6},{"date":"2026-01-09","clicks":1299084,"impressions":66705303,"ctr":1.95,"position":6.6},{"date":"2026-01-10","clicks":1167480,"impressions":62959652,"ctr":1.85,"position":6.6},{"date":"2026-01-11","clicks":1175017,"impressions":62858132,"ctr":1.87,"position":6.7},{"date":"2026-01-12","clicks":1376744,"impressions":68517428,"ctr":2.01,"position":6.6},{"date":"2026-01-13","clicks":1244951,"impressions":64848209,"ctr":1.92,"position":6.6},{"date":"2026-01-14","clicks":1148055,"impressions":62049785,"ctr":1.85,"position":6.7},{"date":"2026-01-15","clicks":1179017,"impressions":62886815,"ctr":1.87,"position":6.6},{"date":"2026-01-16","clicks":1210005,"impressions":64092737,"ctr":1.89,"position":6.8},{"date":"2026-01-17","clicks":1151458,"impressions":62537617,"ctr":1.84,"position":6.9},{"date":"2026-01-18","clicks":1143567,"impressions":63157532,"ctr":1.81,"position":6.9},{"date":"2026-01-19","clicks":1397843,"impressions":72329826,"ctr":1.93,"position":7.0},{"date":"2026-01-20","clicks":1383667,"impressions":72179804,"ctr":1.92,"position":6.8},{"date":"2026-01-21","clicks":1339777,"impressions":70774302,"ctr":1.89,"position":6.9},{"date":"2026-01-22","clicks":1306790,"impressions":69712709,"ctr":1.87,"position":7.1},{"date":"2026-01-23","clicks":1225817,"impressions":64842343,"ctr":1.89,"position":7.0},{"date":"2026-01-24","clicks":1131002,"impressions":62787857,"ctr":1.8,"position":7.1},{"date":"2026-01-25","clicks":988018,"impressions":59289552,"ctr":1.67,"position":7.1},{"date":"2026-01-26","clicks":1192760,"impressions":66499770,"ctr":1.79,"position":7.1},{"date":"2026-01-27","clicks":1374176,"impressions":70875038,"ctr":1.94,"position":6.9},{"date":"2026-01-28","clicks":1342862,"impressions":70223113,"ctr":1.91,"position":6.8},{"date":"2026-01-29","clicks":1377847,"impressions":71332317,"ctr":1.93,"position":6.6},{"date":"2026-01-30","clicks":1299544,"impressions":71421606,"ctr":1.82,"position":7.0},{"date":"2026-01-31","clicks":1124846,"impressions":65967899,"ctr":1.71,"position":7.0},{"date":"2026-02-01","clicks":1132722,"impressions":67648144,"ctr":1.67,"position":6.9},{"date":"2026-02-02","clicks":1361125,"impressions":74161889,"ctr":1.84,"position":6.8},{"date":"2026-02-03","clicks":1345741,"impressions":71681167,"ctr":1.88,"position":6.1},{"date":"2026-02-04","clicks":1325890,"impressions":72585455,"ctr":1.83,"position":6.3},{"date":"2026-02-05","clicks":1310191,"impressions":73950549,"ctr":1.77,"position":6.6},{"date":"2026-02-06","clicks":1252700,"impressions":71232289,"ctr":1.76,"position":6.2},{"date":"2026-02-07","clicks":1130127,"impressions":67421866,"ctr":1.68,"position":6.0},{"date":"2026-02-08","clicks":1152336,"impressions":68329984,"ctr":1.69,"position":6.1},{"date":"2026-02-09","clicks":1386461,"impressions":76202490,"ctr":1.82,"position":6.3},{"date":"2026-02-10","clicks":1386147,"impressions":76299413,"ctr":1.82,"position":6.1},{"date":"2026-02-11","clicks":1364930,"impressions":76525488,"ctr":1.78,"position":6.2},{"date":"2026-02-12","clicks":1362117,"impressions":75729197,"ctr":1.8,"position":6.2},{"date":"2026-02-13","clicks":1298541,"impressions":73349015,"ctr":1.77,"position":5.9},{"date":"2026-02-14","clicks":1109925,"impressions":66624074,"ctr":1.67,"position":6.0},{"date":"2026-02-15","clicks":1066729,"impressions":64610687,"ctr":1.65,"position":6.2},{"date":"2026-02-16","clicks":1356564,"impressions":74465153,"ctr":1.82,"position":5.9},{"date":"2026-02-17","clicks":1392807,"impressions":75123898,"ctr":1.85,"position":5.9},{"date":"2026-02-18","clicks":1348601,"impressions":73047239,"ctr":1.85,"position":6.0},{"date":"2026-02-19","clicks":1333574,"impressions":71562745,"ctr":1.86,"position":6.1},{"date":"2026-02-20","clicks":1301569,"impressions":70025863,"ctr":1.86,"position":6.1},{"date":"2026-02-21","clicks":1184480,"impressions":67430159,"ctr":1.76,"position":6.2},{"date":"2026-02-22","clicks":1166376,"impressions":67216899,"ctr":1.74,"position":6.2},{"date":"2026-02-23","clicks":1422876,"impressions":74981721,"ctr":1.9,"position":6.1},{"date":"2026-02-24","clicks":1422472,"impressions":74929048,"ctr":1.9,"position":6.1},{"date":"2026-02-25","clicks":1380140,"impressions":74032467,"ctr":1.86,"position":6.2},{"date":"2026-02-26","clicks":1316271,"impressions":71163115,"ctr":1.85,"position":6.3},{"date":"2026-02-27","clicks":1301424,"impressions":71350011,"ctr":1.82,"position":6.2},{"date":"2026-02-28","clicks":1081383,"impressions":62993409,"ctr":1.72,"position":6.1},{"date":"2026-03-01","clicks":998350,"impressions":59439684,"ctr":1.68,"position":6.2},{"date":"2026-03-02","clicks":1158583,"impressions":64193426,"ctr":1.8,"position":6.4},{"date":"2026-03-03","clicks":1033599,"impressions":59900510,"ctr":1.73,"position":6.3},{"date":"2026-03-04","clicks":1042073,"impressions":59351233,"ctr":1.76,"position":6.2},{"date":"2026-03-05","clicks":1197077,"impressions":64203618,"ctr":1.86,"position":6.1},{"date":"2026-03-06","clicks":1283036,"impressions":66344705,"ctr":1.93,"position":6.0},{"date":"2026-03-07","clicks":1174966,"impressions":63270122,"ctr":1.86,"position":5.9},{"date":"2026-03-08","clicks":944232,"impressions":54723453,"ctr":1.73,"position":6.1},{"date":"2026-03-09","clicks":1346193,"impressions":69132620,"ctr":1.95,"position":6.0},{"date":"2026-03-10","clicks":1385675,"impressions":71021396,"ctr":1.95,"position":5.9},{"date":"2026-03-11","clicks":1393132,"impressions":70428716,"ctr":1.98,"position":6.0},{"date":"2026-03-12","clicks":1440375,"impressions":71968505,"ctr":2.0,"position":6.0},{"date":"2026-03-13","clicks":1362134,"impressions":68901577,"ctr":1.98,"position":6.1},{"date":"2026-03-14","clicks":1243254,"impressions":65038417,"ctr":1.91,"position":5.9},{"date":"2026-03-15","clicks":1163990,"impressions":62912875,"ctr":1.85,"position":6.0},{"date":"2026-03-16","clicks":1405171,"impressions":69589368,"ctr":2.02,"position":6.0},{"date":"2026-03-17","clicks":1414030,"impressions":69356141,"ctr":2.04,"position":5.9},{"date":"2026-03-18","clicks":1322358,"impressions":66001617,"ctr":2.0,"position":5.9},{"date":"2026-03-19","clicks":1302197,"impressions":64991219,"ctr":2.0,"position":6.0},{"date":"2026-03-20","clicks":1259459,"impressions":62553523,"ctr":2.01,"position":6.1},{"date":"2026-03-21","clicks":1152764,"impressions":58558309,"ctr":1.97,"position":6.0},{"date":"2026-03-22","clicks":1135494,"impressions":59675205,"ctr":1.9,"position":6.1},{"date":"2026-03-23","clicks":1382577,"impressions":66910974,"ctr":2.07,"position":5.9},{"date":"2026-03-24","clicks":1390115,"impressions":68324248,"ctr":2.03,"position":5.9},{"date":"2026-03-25","clicks":1369431,"impressions":67385901,"ctr":2.03,"position":5.9},{"date":"2026-03-26","clicks":1333382,"impressions":65506935,"ctr":2.04,"position":6.0},{"date":"2026-03-27","clicks":1284507,"impressions":63839901,"ctr":2.01,"position":6.0},{"date":"2026-03-28","clicks":1217987,"impressions":63293060,"ctr":1.92,"position":5.9},{"date":"2026-03-29","clicks":1157476,"impressions":62234018,"ctr":1.86,"position":6.0},{"date":"2026-03-30","clicks":1363796,"impressions":68549142,"ctr":1.99,"position":6.0},{"date":"2026-03-31","clicks":1325238,"impressions":66787288,"ctr":1.98,"position":5.9},{"date":"2026-04-01","clicks":1284598,"impressions":65179230,"ctr":1.97,"position":5.9},{"date":"2026-04-02","clicks":1274814,"impressions":63613690,"ctr":2.0,"position":5.9},{"date":"2026-04-03","clicks":1280571,"impressions":63288139,"ctr":2.02,"position":5.9},{"date":"2026-04-04","clicks":1181777,"impressions":60608642,"ctr":1.95,"position":5.7},{"date":"2026-04-05","clicks":1101178,"impressions":58409832,"ctr":1.89,"position":5.9},{"date":"2026-04-06","clicks":1345897,"impressions":65279674,"ctr":2.06,"position":5.9},{"date":"2026-04-07","clicks":1329958,"impressions":65709500,"ctr":2.02,"position":5.8},{"date":"2026-04-08","clicks":1316271,"impressions":65489951,"ctr":2.01,"position":5.7},{"date":"2026-04-09","clicks":1290484,"impressions":65655374,"ctr":1.97,"position":5.9},{"date":"2026-04-10","clicks":1225679,"impressions":64061401,"ctr":1.91,"position":5.8},{"date":"2026-04-11","clicks":1138867,"impressions":59881257,"ctr":1.9,"position":5.7},{"date":"2026-04-12","clicks":1063004,"impressions":58436517,"ctr":1.82,"position":6.1},{"date":"2026-04-13","clicks":1280645,"impressions":65087269,"ctr":1.97,"position":6.1},{"date":"2026-04-14","clicks":1269759,"impressions":64224301,"ctr":1.98,"position":5.9},{"date":"2026-04-15","clicks":1255127,"impressions":65177614,"ctr":1.93,"position":6.1},{"date":"2026-04-16","clicks":1297473,"impressions":65448858,"ctr":1.98,"position":6.0},{"date":"2026-04-17","clicks":1263202,"impressions":66209032,"ctr":1.91,"position":6.0},{"date":"2026-04-18","clicks":1147303,"impressions":62159396,"ctr":1.85,"position":5.8},{"date":"2026-04-19","clicks":1048549,"impressions":58867483,"ctr":1.78,"position":6.0},{"date":"2026-04-20","clicks":1258502,"impressions":62795022,"ctr":2.0,"position":6.2},{"date":"2026-04-21","clicks":1271193,"impressions":61584932,"ctr":2.06,"position":6.2},{"date":"2026-04-22","clicks":1264551,"impressions":61350095,"ctr":2.06,"position":6.3},{"date":"2026-04-23","clicks":1245429,"impressions":61214444,"ctr":2.03,"position":6.4},{"date":"2026-04-24","clicks":1243154,"impressions":61323944,"ctr":2.03,"position":6.2},{"date":"2026-04-25","clicks":1132012,"impressions":57836960,"ctr":1.96,"position":6.2},{"date":"2026-04-26","clicks":1074626,"impressions":56920992,"ctr":1.89,"position":6.4},{"date":"2026-04-27","clicks":1295394,"impressions":62359012,"ctr":2.08,"position":6.4},{"date":"2026-04-28","clicks":1262957,"impressions":61034866,"ctr":2.07,"position":6.3},{"date":"2026-04-29","clicks":1203232,"impressions":58784154,"ctr":2.05,"position":6.2},{"date":"2026-04-30","clicks":1154193,"impressions":58791080,"ctr":1.96,"position":6.3},{"date":"2026-05-01","clicks":1120642,"impressions":58981578,"ctr":1.9,"position":6.2},{"date":"2026-05-02","clicks":1058227,"impressions":57505572,"ctr":1.84,"position":6.2},{"date":"2026-05-03","clicks":942427,"impressions":54216197,"ctr":1.74,"position":6.4}];
+const REAL_DATA_GA_DAILY = {overall:{"pdp":[{"week":0,"users":1360534},{"week":1,"users":1368491},{"week":2,"users":1332993},{"week":3,"users":1344315},{"week":4,"users":1325343},{"week":5,"users":1146631},{"week":6,"users":1392360},{"week":7,"users":1355332},{"week":8,"users":1371857},{"week":9,"users":1362982},{"week":10,"users":1244555},{"week":11,"users":1272402},{"week":12,"users":1094915},{"week":13,"users":1362982},{"week":14,"users":1400622},{"week":15,"users":1351966},{"week":16,"users":1419901},{"week":17,"users":1356556},{"week":18,"users":1311572},{"week":19,"users":1160708},{"week":20,"users":1414392},{"week":21,"users":1424797},{"week":22,"users":1366960},{"week":23,"users":1393278},{"week":24,"users":1405212},{"week":25,"users":1329321},{"week":26,"users":1091549},{"week":27,"users":1356556},{"week":28,"users":1455704},{"week":29,"users":1367572},{"week":30,"users":1402152},{"week":31,"users":1362370},{"week":32,"users":1319528},{"week":33,"users":1179068},{"week":34,"users":1372775},{"week":35,"users":1409802},{"week":36,"users":1362370},{"week":37,"users":1364512},{"week":38,"users":1326873},{"week":39,"users":1308206},{"week":40,"users":1115418},{"week":41,"users":1408578},{"week":42,"users":1446218},{"week":43,"users":1461824},{"week":44,"users":1492732},{"week":45,"users":1428775},{"week":46,"users":1386239},{"week":47,"users":1191615},{"week":48,"users":1430305},{"week":49,"users":1458152},{"week":50,"users":1397256},{"week":51,"users":1314326},{"week":52,"users":1400010},{"week":53,"users":1377977},{"week":54,"users":1176926},{"week":55,"users":1427245},{"week":56,"users":1386851},{"week":57,"users":1220074},{"week":58,"users":1075330},{"week":59,"users":1426327},{"week":60,"users":1476819},{"week":61,"users":1250063},{"week":62,"users":1482939},{"week":63,"users":1484163},{"week":64,"users":1488754},{"week":65,"users":1485388},{"week":66,"users":1404600},{"week":67,"users":1389299},{"week":68,"users":1197735},{"week":69,"users":1263528},{"week":70,"users":1355944},{"week":71,"users":1235987},{"week":72,"users":1260162},{"week":73,"users":1320752},{"week":74,"users":1332687},{"week":75,"users":1206610},{"week":76,"users":1453868},{"week":77,"users":1480491},{"week":78,"users":1448972},{"week":79,"users":1459376},{"week":80,"users":1429693},{"week":81,"users":1391135},{"week":82,"users":1216096},{"week":83,"users":1248227},{"week":84,"users":1556077},{"week":85,"users":1454786},{"week":86,"users":1491202},{"week":87,"users":1509869},{"week":88,"users":1421125},{"week":89,"users":1205998},{"week":90,"users":1475595},{"week":91,"users":1524251},{"week":92,"users":1491202},{"week":93,"users":1495792},{"week":94,"users":1480797},{"week":95,"users":1469475},{"week":96,"users":1270260},{"week":97,"users":1566481},{"week":98,"users":1526393},{"week":99,"users":1563727},{"week":100,"users":1485694},{"week":101,"users":1490284},{"week":102,"users":1476819},{"week":103,"users":1227724},{"week":104,"users":1468863},{"week":105,"users":1541082},{"week":106,"users":1515071},{"week":107,"users":1479879},{"week":108,"users":1454480},{"week":109,"users":1550874},{"week":110,"users":1290763},{"week":111,"users":1646962},{"week":112,"users":1666547},{"week":113,"users":1530983},{"week":114,"users":1520885},{"week":115,"users":1497628},{"week":116,"users":1457234},{"week":117,"users":1145407},{"week":118,"users":1327485},{"week":119,"users":1235987},{"week":120,"users":1056969},{"week":121,"users":1292905},{"week":122,"users":1362982},{"week":123,"users":1415004},{"week":124,"users":1157341},{"week":125,"users":1482021},{"week":126,"users":1566787},{"week":127,"users":1591880},{"week":128,"users":1591880},{"week":129,"users":1459682},{"week":130,"users":1540776},{"week":131,"users":1341561},{"week":132,"users":1541694},{"week":133,"users":1597388},{"week":134,"users":1496098},{"week":135,"users":1413474},{"week":136,"users":1393278},{"week":137,"users":1388075},{"week":138,"users":1260468},{"week":139,"users":1510175},{"week":140,"users":1508338},{"week":141,"users":1415004},{"week":142,"users":1472841},{"week":143,"users":1433059},{"week":144,"users":1496098},{"week":145,"users":1241495},{"week":146,"users":1498546},{"week":147,"users":1503442},{"week":148,"users":1422655},{"week":149,"users":1326261},{"week":150,"users":1428163},{"week":151,"users":1357168},{"week":152,"users":1141735},{"week":153,"users":1404906},{"week":154,"users":1427857},{"week":155,"users":1385321},{"week":156,"users":1396644},{"week":157,"users":1379813},{"week":158,"users":1377671},{"week":159,"users":1190391},{"week":160,"users":1370633},{"week":161,"users":1426939},{"week":162,"users":1367878},{"week":163,"users":1445606},{"week":164,"users":1439180},{"week":165,"users":1370327},{"week":166,"users":1217014},{"week":167,"users":1381649},{"week":168,"users":1404294},{"week":169,"users":1422043},{"week":170,"users":1352578},{"week":171,"users":1366654},{"week":172,"users":1321364},{"week":173,"users":1155505},{"week":174,"users":1345234},{"week":175,"users":1364818},{"week":176,"users":1342785},{"week":177,"users":1327485},{"week":178,"users":1213648},{"week":179,"users":1262304},{"week":180,"users":1074718}],"mcat":[{"week":0,"users":609884},{"week":1,"users":603764},{"week":2,"users":636201},{"week":3,"users":610496},{"week":4,"users":620289},{"week":5,"users":496353},{"week":6,"users":656704},{"week":7,"users":626103},{"week":8,"users":641097},{"week":9,"users":650278},{"week":10,"users":572856},{"week":11,"users":585709},{"week":12,"users":473096},{"week":13,"users":657928},{"week":14,"users":662518},{"week":15,"users":660070},{"week":16,"users":661294},{"week":17,"users":627021},{"week":18,"users":625797},{"week":19,"users":506758},{"week":20,"users":660988},{"week":21,"users":665884},{"week":22,"users":649054},{"week":23,"users":657010},{"week":24,"users":655786},{"week":25,"users":590911},{"week":26,"users":465140},{"week":27,"users":641709},{"week":28,"users":687305},{"week":29,"users":649666},{"week":30,"users":657316},{"week":31,"users":635589},{"week":32,"users":601316},{"week":33,"users":508288},{"week":34,"users":650278},{"week":35,"users":657622},{"week":36,"users":653950},{"week":37,"users":645076},{"week":38,"users":611720},{"week":39,"users":581731},{"week":40,"users":482889},{"week":41,"users":632529},{"week":42,"users":665272},{"week":43,"users":680573},{"week":44,"users":706890},{"week":45,"users":657622},{"week":46,"users":602234},{"week":47,"users":507370},{"week":48,"users":683633},{"week":49,"users":684857},{"week":50,"users":657010},{"week":51,"users":598256},{"week":52,"users":651502},{"week":53,"users":643239},{"week":54,"users":525118},{"week":55,"users":688223},{"week":56,"users":679043},{"week":57,"users":571326},{"week":58,"users":499719},{"week":59,"users":671393},{"week":60,"users":698934},{"week":61,"users":546845},{"week":62,"users":712092},{"week":63,"users":701994},{"week":64,"users":676595},{"week":65,"users":707808},{"week":66,"users":693732},{"week":67,"users":645076},{"week":68,"users":526343},{"week":69,"users":640179},{"week":70,"users":640791},{"week":71,"users":582649},{"week":72,"users":578059},{"week":73,"users":608048},{"week":74,"users":614168},{"week":75,"users":536747},{"week":76,"users":688529},{"week":77,"users":694344},{"week":78,"users":676901},{"week":79,"users":686387},{"week":80,"users":652114},{"week":81,"users":616310},{"week":82,"users":517774},{"week":83,"users":522364},{"week":84,"users":690672},{"week":85,"users":662518},{"week":86,"users":699240},{"week":87,"users":696486},{"week":88,"users":650278},{"week":89,"users":512878},{"week":90,"users":695262},{"week":91,"users":716989},{"week":92,"users":686081},{"week":93,"users":681491},{"week":94,"users":678125},{"week":95,"users":652114},{"week":96,"users":549293},{"week":97,"users":721273},{"week":98,"users":701382},{"week":99,"users":712398},{"week":100,"users":683633},{"week":101,"users":674759},{"week":102,"users":639261},{"week":103,"users":489927},{"week":104,"users":665272},{"week":105,"users":698322},{"week":106,"users":684857},{"week":107,"users":683021},{"week":108,"users":656398},{"week":109,"users":654868},{"week":110,"users":517162},{"week":111,"users":734125},{"week":112,"users":714847},{"week":113,"users":689753},{"week":114,"users":698322},{"week":115,"users":668333},{"week":116,"users":664354},{"week":117,"users":466670},{"week":118,"users":585709},{"week":119,"users":559086},{"week":120,"users":462998},{"week":121,"users":606518},{"week":122,"users":635589},{"week":123,"users":654562},{"week":124,"users":499413},{"week":125,"users":665884},{"week":126,"users":703830},{"week":127,"users":734737},{"week":128,"users":727699},{"week":129,"users":660376},{"week":130,"users":694650},{"week":131,"users":574999},{"week":132,"users":696792},{"week":133,"users":704748},{"week":134,"users":697404},{"week":135,"users":653950},{"week":136,"users":650584},{"week":137,"users":634977},{"week":138,"users":575611},{"week":139,"users":725251},{"week":140,"users":709644},{"week":141,"users":664048},{"week":142,"users":687917},{"week":143,"users":662518},{"week":144,"users":680879},{"week":145,"users":527873},{"week":146,"users":656092},{"week":147,"users":675677},{"week":148,"users":657010},{"week":149,"users":608966},{"week":150,"users":646300},{"week":151,"users":617228},{"week":152,"users":501555},{"week":153,"users":642627},{"week":154,"users":660376},{"week":155,"users":644464},{"week":156,"users":638343},{"week":157,"users":634671},{"week":158,"users":618146},{"week":159,"users":510736},{"week":160,"users":620901},{"week":161,"users":659458},{"week":162,"users":639261},{"week":163,"users":694650},{"week":164,"users":641403},{"week":165,"users":601316},{"week":166,"users":533993},{"week":167,"users":629469},{"week":168,"users":660070},{"week":169,"users":685469},{"week":170,"users":644464},{"week":171,"users":654562},{"week":172,"users":613556},{"week":173,"users":522364},{"week":174,"users":626715},{"week":175,"users":643239},{"week":176,"users":587851},{"week":177,"users":623043},{"week":178,"users":535217},{"week":179,"users":552660},{"week":180,"users":455041}],"company":[{"week":0,"users":669429},{"week":1,"users":666064},{"week":2,"users":669735},{"week":3,"users":688093},{"week":4,"users":649542},{"week":5,"users":460768},{"week":6,"users":691458},{"week":7,"users":696353},{"week":8,"users":689928},{"week":9,"users":715629},{"week":10,"users":655661},{"week":11,"users":648930},{"week":12,"users":471782},{"week":13,"users":705532},{"week":14,"users":716546},{"week":15,"users":706450},{"week":16,"users":725113},{"week":17,"users":695130},{"week":18,"users":654744},{"week":19,"users":491058},{"week":20,"users":696353},{"week":21,"users":713487},{"week":22,"users":712263},{"week":23,"users":706450},{"week":24,"users":718994},{"week":25,"users":651990},{"week":26,"users":470559},{"week":27,"users":677690},{"week":28,"users":720830},{"week":29,"users":695436},{"week":30,"users":710733},{"week":31,"users":711345},{"week":32,"users":656273},{"week":33,"users":514004},{"week":34,"users":715935},{"week":35,"users":706756},{"week":36,"users":732456},{"week":37,"users":715629},{"week":38,"users":681362},{"week":39,"users":636080},{"week":40,"users":493811},{"week":41,"users":726337},{"week":42,"users":741635},{"week":43,"users":745306},{"week":44,"users":788140},{"week":45,"users":743470},{"week":46,"users":705532},{"week":47,"users":529302},{"week":48,"users":752343},{"week":49,"users":776820},{"week":50,"users":730620},{"week":51,"users":662392},{"week":52,"users":727561},{"week":53,"users":706756},{"week":54,"users":530526},{"week":55,"users":761216},{"week":56,"users":750201},{"week":57,"users":646177},{"week":58,"users":573971},{"week":59,"users":742553},{"week":60,"users":753261},{"week":61,"users":561427},{"week":62,"users":763052},{"week":63,"users":769171},{"week":64,"users":772536},{"week":65,"users":780491},{"week":66,"users":754179},{"week":67,"users":707368},{"week":68,"users":535727},{"week":69,"users":722054},{"week":70,"users":722971},{"week":71,"users":628125},{"week":72,"users":622006},{"week":73,"users":677996},{"week":74,"users":681362},{"week":75,"users":511557},{"week":76,"users":771006},{"week":77,"users":764581},{"week":78,"users":750813},{"week":79,"users":762134},{"week":80,"users":714099},{"week":81,"users":676160},{"week":82,"users":521347},{"week":83,"users":555920},{"week":84,"users":761216},{"week":85,"users":730008},{"week":86,"users":753261},{"week":87,"users":766111},{"week":88,"users":705226},{"week":89,"users":515534},{"week":90,"users":755403},{"week":91,"users":779573},{"week":92,"users":742553},{"week":93,"users":752649},{"week":94,"users":724807},{"week":95,"users":703084},{"week":96,"users":532973},{"week":97,"users":784162},{"week":98,"users":766111},{"week":99,"users":782633},{"week":100,"users":755709},{"week":101,"users":746530},{"week":102,"users":681974},{"week":103,"users":504520},{"week":104,"users":737351},{"week":105,"users":774984},{"week":106,"users":740105},{"week":107,"users":753567},{"week":108,"users":719912},{"week":109,"users":725419},{"week":110,"users":505743},{"week":111,"users":768559},{"week":112,"users":783551},{"week":113,"users":782939},{"week":114,"users":766723},{"week":115,"users":730926},{"week":116,"users":704614},{"week":117,"users":477596},{"week":118,"users":657497},{"week":119,"users":580702},{"week":120,"users":473006},{"week":121,"users":690540},{"week":122,"users":682891},{"week":123,"users":703696},{"week":124,"users":477290},{"week":125,"users":744388},{"week":126,"users":780491},{"week":127,"users":805579},{"week":128,"users":795789},{"week":129,"users":745306},{"week":130,"users":743776},{"week":131,"users":561121},{"week":132,"users":765193},{"week":133,"users":772536},{"week":134,"users":759992},{"week":135,"users":699719},{"week":136,"users":711345},{"week":137,"users":679526},{"week":138,"users":537257},{"week":139,"users":752955},{"week":140,"users":766723},{"week":141,"users":714405},{"week":142,"users":729091},{"week":143,"users":729397},{"week":144,"users":712263},{"week":145,"users":543376},{"week":146,"users":744388},{"week":147,"users":768559},{"week":148,"users":724501},{"week":149,"users":685033},{"week":150,"users":724501},{"week":151,"users":677690},{"week":152,"users":535727},{"week":153,"users":759992},{"week":154,"users":757544},{"week":155,"users":734292},{"week":156,"users":740411},{"week":157,"users":742553},{"week":158,"users":712263},{"week":159,"users":540010},{"week":160,"users":737045},{"week":161,"users":767335},{"week":162,"users":726643},{"week":163,"users":748672},{"week":164,"users":725725},{"week":165,"users":664228},{"week":166,"users":497177},{"week":167,"users":692376},{"week":168,"users":710733},{"week":169,"users":709204},{"week":170,"users":685645},{"week":171,"users":704308},{"week":172,"users":647401},{"week":173,"users":469335},{"week":174,"users":679220},{"week":175,"users":689010},{"week":176,"users":652602},{"week":177,"users":648930},{"week":178,"users":550413},{"week":179,"users":602731},{"week":180,"users":436904}],"home":[{"week":0,"users":707195},{"week":1,"users":725862},{"week":2,"users":713928},{"week":3,"users":701381},{"week":4,"users":710562},{"week":5,"users":614168},{"week":6,"users":750649},{"week":7,"users":719742},{"week":8,"users":733512},{"week":9,"users":739939},{"week":10,"users":668944},{"week":11,"users":702605},{"week":12,"users":615392},{"week":13,"users":745141},{"week":14,"users":735961},{"week":15,"users":720354},{"week":16,"users":771764},{"week":17,"users":724944},{"week":18,"users":701075},{"week":19,"users":633752},{"week":20,"users":770846},{"week":21,"users":770846},{"week":22,"users":757687},{"week":23,"users":758912},{"week":24,"users":761054},{"week":25,"users":704441},{"week":26,"users":597949},{"week":27,"users":732288},{"week":28,"users":791961},{"week":29,"users":749731},{"week":30,"users":769928},{"week":31,"users":757381},{"week":32,"users":727698},{"week":33,"users":653643},{"week":34,"users":762890},{"week":35,"users":779414},{"week":36,"users":742081},{"week":37,"users":762278},{"week":38,"users":726474},{"week":39,"users":724026},{"week":40,"users":614168},{"week":41,"users":761666},{"week":42,"users":815830},{"week":43,"users":802977},{"week":44,"users":843983},{"week":45,"users":796551},{"week":46,"users":761666},{"week":47,"users":666496},{"week":48,"users":793491},{"week":49,"users":818278},{"week":50,"users":770540},{"week":51,"users":732288},{"week":52,"users":776354},{"week":53,"users":782168},{"week":54,"users":645993},{"week":55,"users":802365},{"week":56,"users":791349},{"week":57,"users":670780},{"week":58,"users":607435},{"week":59,"users":802977},{"week":60,"users":819808},{"week":61,"users":706277},{"week":62,"users":823786},{"week":63,"users":816748},{"week":64,"users":806343},{"week":65,"users":827764},{"week":66,"users":784617},{"week":67,"users":771764},{"week":68,"users":672922},{"week":69,"users":707195},{"week":70,"users":725862},{"week":71,"users":693731},{"week":72,"users":683020},{"week":73,"users":717600},{"week":74,"users":723108},{"week":75,"users":675676},{"week":76,"users":768092},{"week":77,"users":759830},{"week":78,"users":722190},{"week":79,"users":743611},{"week":80,"users":668944},{"week":81,"users":668638},{"week":82,"users":572244},{"week":83,"users":587544},{"week":84,"users":725862},{"week":85,"users":689447},{"week":86,"users":732900},{"week":87,"users":711786},{"week":88,"users":649053},{"week":89,"users":535522},{"week":90,"users":688223},{"week":91,"users":696485},{"week":92,"users":662518},{"week":93,"users":672922},{"week":94,"users":647217},{"week":95,"users":651195},{"week":96,"users":552659},{"week":97,"users":701381},{"week":98,"users":676594},{"week":99,"users":678736},{"week":100,"users":677512},{"week":101,"users":666802},{"week":102,"users":640485},{"week":103,"users":499719},{"week":104,"users":650277},{"week":105,"users":691895},{"week":106,"users":652419},{"week":107,"users":627020},{"week":108,"users":632222},{"week":109,"users":649359},{"week":110,"users":523588},{"week":111,"users":688223},{"week":112,"users":669250},{"week":113,"users":654867},{"week":114,"users":674452},{"week":115,"users":627020},{"week":116,"users":612025},{"week":117,"users":457183},{"week":118,"users":548375},{"week":119,"users":529402},{"week":120,"users":436986},{"week":121,"users":570102},{"week":122,"users":560615},{"week":123,"users":582954},{"week":124,"users":457183},{"week":125,"users":599479},{"week":126,"users":644769},{"week":127,"users":631610},{"week":128,"users":640179},{"week":129,"users":596113},{"week":130,"users":593971},{"week":131,"users":504615},{"week":132,"users":611719},{"week":133,"users":631916},{"week":134,"users":615698},{"week":135,"users":597031},{"week":136,"users":556943},{"week":137,"users":540418},{"week":138,"users":497271},{"week":139,"users":606517},{"week":140,"users":603457},{"week":141,"users":574080},{"week":142,"users":589686},{"week":143,"users":569184},{"week":144,"users":582036},{"week":145,"users":491150},{"week":146,"users":586014},{"week":147,"users":600397},{"week":148,"users":580812},{"week":149,"users":550823},{"week":150,"users":575916},{"week":151,"users":543479},{"week":152,"users":461161},{"week":153,"users":582036},{"week":154,"users":590911},{"week":155,"users":567042},{"week":156,"users":561533},{"week":157,"users":558473},{"week":158,"users":548987},{"week":159,"users":450757},{"week":160,"users":537052},{"week":161,"users":572856},{"week":162,"users":534910},{"week":163,"users":577446},{"week":164,"users":568572},{"week":165,"users":532462},{"week":166,"users":459631},{"week":167,"users":528484},{"week":168,"users":535828},{"week":169,"users":540112},{"week":170,"users":507981},{"week":171,"users":441576},{"week":172,"users":397511},{"week":173,"users":322537},{"week":174,"users":403019},{"week":175,"users":409751},{"week":176,"users":383740},{"week":177,"users":383434},{"week":178,"users":334778},{"week":179,"users":373642},{"week":180,"users":283062}]},organic:{"pdp":[{"week":0,"users":943744},{"week":1,"users":944662},{"week":2,"users":905493},{"week":3,"users":913449},{"week":4,"users":878870},{"week":5,"users":732901},{"week":6,"users":915897},{"week":7,"users":893252},{"week":8,"users":919569},{"week":9,"users":930280},{"week":10,"users":849492},{"week":11,"users":858673},{"week":12,"users":726169},{"week":13,"users":947417},{"week":14,"users":972510},{"week":15,"users":941908},{"week":16,"users":971592},{"week":17,"users":922629},{"week":18,"users":910389},{"week":19,"users":748814},{"week":20,"users":955067},{"week":21,"users":943744},{"week":22,"users":930892},{"week":23,"users":929668},{"week":24,"users":919263},{"week":25,"users":880706},{"week":26,"users":705972},{"week":27,"users":894782},{"week":28,"users":982302},{"week":29,"users":925078},{"week":30,"users":948335},{"week":31,"users":892946},{"week":32,"users":852552},{"week":33,"users":759218},{"week":34,"users":930280},{"week":35,"users":942826},{"week":36,"users":907635},{"week":37,"users":908859},{"week":38,"users":872443},{"week":39,"users":848574},{"week":40,"users":688529},{"week":41,"users":910695},{"week":42,"users":949559},{"week":43,"users":954149},{"week":44,"users":995155},{"week":45,"users":931198},{"week":46,"users":912837},{"week":47,"users":743612},{"week":48,"users":954761},{"week":49,"users":990870},{"week":50,"users":936400},{"week":51,"users":871219},{"week":52,"users":947417},{"week":53,"users":924160},{"week":54,"users":763503},{"week":55,"users":975570},{"week":56,"users":983220},{"week":57,"users":832356},{"week":58,"users":723109},{"week":59,"users":971592},{"week":60,"users":995461},{"week":61,"users":789208},{"week":62,"users":986586},{"week":63,"users":996685},{"week":64,"users":966695},{"week":65,"users":964247},{"week":66,"users":934258},{"week":67,"users":910083},{"week":68,"users":793492},{"week":69,"users":952619},{"week":70,"users":936400},{"week":71,"users":817361},{"week":72,"users":800836},{"week":73,"users":852552},{"week":74,"users":891722},{"week":75,"users":764421},{"week":76,"users":978936},{"week":77,"users":999439},{"week":78,"users":952007},{"week":79,"users":965165},{"week":80,"users":916203},{"week":81,"users":889886},{"week":82,"users":748508},{"week":83,"users":768705},{"week":84,"users":965777},{"week":85,"users":932116},{"week":86,"users":1001887},{"week":87,"users":981384},{"week":88,"users":908247},{"week":89,"users":752792},{"week":90,"users":971286},{"week":91,"users":973428},{"week":92,"users":953231},{"week":93,"users":953843},{"week":94,"users":946192},{"week":95,"users":921099},{"week":96,"users":771153},{"week":97,"users":995767},{"week":98,"users":975570},{"week":99,"users":1015045},{"week":100,"users":995767},{"week":101,"users":948947},{"week":102,"users":950171},{"week":103,"users":712092},{"week":104,"users":944050},{"week":105,"users":1016269},{"week":106,"users":1003723},{"week":107,"users":974040},{"week":108,"users":942520},{"week":109,"users":964859},{"week":110,"users":759524},{"week":111,"users":1025450},{"week":112,"users":1009537},{"week":113,"users":982914},{"week":114,"users":967307},{"week":115,"users":947723},{"week":116,"users":924160},{"week":117,"users":695262},{"week":118,"users":846432},{"week":119,"users":814301},{"week":120,"users":667109},{"week":121,"users":864181},{"week":122,"users":896312},{"week":123,"users":929974},{"week":124,"users":723109},{"week":125,"users":944968},{"week":126,"users":1010455},{"week":127,"users":1045341},{"week":128,"users":1035242},{"week":129,"users":980160},{"week":130,"users":967307},{"week":131,"users":835722},{"week":132,"users":994543},{"week":133,"users":1001275},{"week":134,"users":1003723},{"week":135,"users":937012},{"week":136,"users":939154},{"week":137,"users":876421},{"week":138,"users":760749},{"week":139,"users":967001},{"week":140,"users":1003111},{"week":141,"users":927220},{"week":142,"users":947417},{"week":143,"users":916509},{"week":144,"users":943744},{"week":145,"users":763809},{"week":146,"users":954761},{"week":147,"users":934564},{"week":148,"users":938542},{"week":149,"users":888968},{"week":150,"users":975876},{"week":151,"users":907635},{"week":152,"users":772377},{"week":153,"users":959963},{"week":154,"users":960881},{"week":155,"users":943132},{"week":156,"users":916203},{"week":157,"users":892946},{"week":158,"users":887132},{"week":159,"users":733207},{"week":160,"users":888356},{"week":161,"users":940990},{"week":162,"users":894782},{"week":163,"users":949559},{"week":164,"users":948947},{"week":165,"users":900597},{"week":166,"users":756770},{"week":167,"users":887132},{"week":168,"users":907635},{"week":169,"users":950477},{"week":170,"users":875503},{"week":171,"users":906105},{"week":172,"users":866017},{"week":173,"users":743000},{"week":174,"users":876421},{"week":175,"users":916203},{"week":176,"users":853470},{"week":177,"users":866323},{"week":178,"users":791044},{"week":179,"users":812465},{"week":180,"users":677207}],"mcat":[{"week":0,"users":517774},{"week":1,"users":513490},{"week":2,"users":540419},{"week":3,"users":520834},{"week":4,"users":518080},{"week":5,"users":411282},{"week":6,"users":546845},{"week":7,"users":523894},{"week":8,"users":535523},{"week":9,"users":552660},{"week":10,"users":489621},{"week":11,"users":494823},{"week":12,"users":395981},{"week":13,"users":551130},{"week":14,"users":571326},{"week":15,"users":563676},{"week":16,"users":557556},{"week":17,"users":521752},{"week":18,"users":521140},{"week":19,"users":420156},{"week":20,"users":547151},{"week":21,"users":548375},{"week":22,"users":541643},{"week":23,"users":541031},{"week":24,"users":542561},{"week":25,"users":477992},{"week":26,"users":373948},{"week":27,"users":516856},{"week":28,"users":571938},{"week":29,"users":535523},{"week":30,"users":545621},{"week":31,"users":521140},{"week":32,"users":485031},{"week":33,"users":409752},{"week":34,"users":539807},{"week":35,"users":553272},{"week":36,"users":544703},{"week":37,"users":528179},{"week":38,"users":504922},{"week":39,"users":476462},{"week":40,"users":377314},{"week":41,"users":519304},{"week":42,"users":546539},{"week":43,"users":554802},{"week":44,"users":574999},{"week":45,"users":536441},{"week":46,"users":492987},{"week":47,"users":403631},{"week":48,"users":561228},{"week":49,"users":566124},{"week":50,"users":541949},{"week":51,"users":492681},{"week":52,"users":541643},{"week":53,"users":530627},{"week":54,"users":436987},{"week":55,"users":582955},{"week":56,"users":584791},{"week":57,"users":486255},{"week":58,"users":415872},{"week":59,"users":560310},{"week":60,"users":573469},{"week":61,"users":444025},{"week":62,"users":579589},{"week":63,"users":574693},{"week":64,"users":544091},{"week":65,"users":571020},{"week":66,"users":568572},{"week":67,"users":521446},{"week":68,"users":436375},{"week":69,"users":576835},{"week":70,"users":539807},{"week":71,"users":476156},{"week":72,"users":455347},{"week":73,"users":485031},{"week":74,"users":499719},{"week":75,"users":429336},{"week":76,"users":561534},{"week":77,"users":583873},{"week":78,"users":556332},{"week":79,"users":557250},{"week":80,"users":517162},{"week":81,"users":492069},{"week":82,"users":408221},{"week":83,"users":414954},{"week":84,"users":558780},{"week":85,"users":530627},{"week":86,"users":588157},{"week":87,"users":560616},{"week":88,"users":519610},{"week":89,"users":404549},{"week":90,"users":575611},{"week":91,"users":571632},{"week":92,"users":548681},{"week":93,"users":540113},{"week":94,"users":538889},{"week":95,"users":521446},{"week":96,"users":428418},{"week":97,"users":570102},{"week":98,"users":564594},{"week":99,"users":577141},{"week":100,"users":570714},{"week":101,"users":548069},{"week":102,"users":514714},{"week":103,"users":388025},{"week":104,"users":539807},{"week":105,"users":571020},{"week":106,"users":557862},{"week":107,"users":563370},{"week":108,"users":528791},{"week":109,"users":531851},{"week":110,"users":407915},{"week":111,"users":593971},{"week":112,"users":574387},{"week":113,"users":545009},{"week":114,"users":558474},{"week":115,"users":544703},{"week":116,"users":533993},{"week":117,"users":357117},{"week":118,"users":475544},{"week":119,"users":449533},{"week":120,"users":356199},{"week":121,"users":493599},{"week":122,"users":514408},{"week":123,"users":531851},{"week":124,"users":390473},{"week":125,"users":535829},{"week":126,"users":571326},{"week":127,"users":595501},{"week":128,"users":606518},{"week":129,"users":553884},{"week":130,"users":554496},{"week":131,"users":459326},{"week":132,"users":579895},{"week":133,"users":577447},{"week":134,"users":582343},{"week":135,"users":536135},{"week":136,"users":533381},{"week":137,"users":507370},{"week":138,"users":444331},{"week":139,"users":571632},{"week":140,"users":589075},{"week":141,"users":545621},{"week":142,"users":564594},{"week":143,"users":549293},{"week":144,"users":564288},{"week":145,"users":428724},{"week":146,"users":544397},{"week":147,"users":537053},{"week":148,"users":550518},{"week":149,"users":499107},{"week":150,"users":555108},{"week":151,"users":523894},{"week":152,"users":427806},{"week":153,"users":543479},{"week":154,"users":568878},{"week":155,"users":547151},{"week":156,"users":536747},{"week":157,"users":518386},{"week":158,"users":511348},{"week":159,"users":413730},{"week":160,"users":515326},{"week":161,"users":550212},{"week":162,"users":524506},{"week":163,"users":556944},{"week":164,"users":534911},{"week":165,"users":504922},{"week":166,"users":418626},{"week":167,"users":522976},{"week":168,"users":529097},{"week":169,"users":557250},{"week":170,"users":519610},{"week":171,"users":526343},{"week":172,"users":499719},{"week":173,"users":420462},{"week":174,"users":518998},{"week":175,"users":537665},{"week":176,"users":477380},{"week":177,"users":512878},{"week":178,"users":443107},{"week":179,"users":462998},{"week":180,"users":372112}],"company":[{"week":0,"users":490539},{"week":1,"users":492069},{"week":2,"users":476156},{"week":3,"users":499413},{"week":4,"users":473096},{"week":5,"users":318254},{"week":6,"users":498801},{"week":7,"users":498801},{"week":8,"users":497577},{"week":9,"users":510736},{"week":10,"users":468200},{"week":11,"users":459632},{"week":12,"users":326210},{"week":13,"users":513796},{"week":14,"users":536747},{"week":15,"users":512878},{"week":16,"users":539501},{"week":17,"users":498801},{"week":18,"users":462080},{"week":19,"users":338144},{"week":20,"users":499107},{"week":21,"users":511042},{"week":22,"users":514102},{"week":23,"users":507370},{"week":24,"users":515020},{"week":25,"users":465140},{"week":26,"users":325292},{"week":27,"users":487173},{"week":28,"users":528791},{"week":29,"users":504310},{"week":30,"users":519304},{"week":31,"users":508900},{"week":32,"users":463610},{"week":33,"users":342735},{"week":34,"users":522670},{"week":35,"users":505228},{"week":36,"users":516856},{"week":37,"users":507064},{"week":38,"users":487479},{"week":39,"users":445861},{"week":40,"users":331412},{"week":41,"users":503392},{"week":42,"users":520834},{"week":43,"users":527873},{"week":44,"users":560616},{"week":45,"users":523588},{"week":46,"users":493599},{"week":47,"users":351609},{"week":48,"users":535523},{"week":49,"users":563064},{"week":50,"users":518998},{"week":51,"users":466364},{"week":52,"users":528485},{"week":53,"users":505840},{"week":54,"users":363544},{"week":55,"users":545315},{"week":56,"users":532463},{"week":57,"users":457796},{"week":58,"users":396593},{"week":59,"users":533075},{"week":60,"users":538277},{"week":61,"users":380068},{"week":62,"users":543785},{"week":63,"users":544703},{"week":64,"users":525118},{"week":65,"users":553578},{"week":66,"users":536135},{"week":67,"users":500025},{"week":68,"users":376396},{"week":69,"users":549293},{"week":70,"users":528485},{"week":71,"users":447391},{"week":72,"users":421074},{"week":73,"users":481971},{"week":74,"users":497883},{"week":75,"users":357729},{"week":76,"users":566736},{"week":77,"users":562758},{"week":78,"users":552354},{"week":79,"users":556944},{"week":80,"users":500025},{"week":81,"users":477074},{"week":82,"users":349773},{"week":83,"users":382822},{"week":84,"users":531239},{"week":85,"users":516856},{"week":86,"users":556332},{"week":87,"users":545621},{"week":88,"users":499413},{"week":89,"users":355893},{"week":90,"users":565206},{"week":91,"users":554496},{"week":92,"users":531851},{"week":93,"users":540419},{"week":94,"users":519304},{"week":95,"users":504922},{"week":96,"users":370582},{"week":97,"users":567042},{"week":98,"users":553884},{"week":99,"users":564900},{"week":100,"users":567960},{"week":101,"users":528179},{"week":102,"users":492375},{"week":103,"users":347325},{"week":104,"users":532463},{"week":105,"users":570102},{"week":106,"users":547457},{"week":107,"users":560616},{"week":108,"users":512572},{"week":109,"users":523894},{"week":110,"users":349773},{"week":111,"users":549599},{"week":112,"users":577141},{"week":113,"users":562452},{"week":114,"users":556638},{"week":115,"users":530015},{"week":116,"users":510430},{"week":117,"users":332636},{"week":118,"users":470342},{"week":119,"users":421686},{"week":120,"users":326210},{"week":121,"users":488703},{"week":122,"users":488091},{"week":123,"users":499413},{"week":124,"users":332024},{"week":125,"users":522670},{"week":126,"users":565206},{"week":127,"users":597032},{"week":128,"users":580201},{"week":129,"users":549599},{"week":130,"users":526955},{"week":131,"users":394757},{"week":132,"users":553884},{"week":133,"users":557250},{"week":134,"users":568572},{"week":135,"users":511960},{"week":136,"users":518998},{"week":137,"users":489621},{"week":138,"users":367522},{"week":139,"users":546233},{"week":140,"users":557862},{"week":141,"users":519304},{"week":142,"users":529403},{"week":143,"users":527873},{"week":144,"users":507676},{"week":145,"users":362932},{"week":146,"users":520222},{"week":147,"users":534911},{"week":148,"users":533993},{"week":149,"users":500331},{"week":150,"users":520528},{"week":151,"users":480747},{"week":152,"users":370276},{"week":153,"users":543173},{"week":154,"users":541643},{"week":155,"users":515938},{"week":156,"users":531239},{"week":157,"users":510430},{"week":158,"users":470954},{"week":159,"users":339981},{"week":160,"users":498801},{"week":161,"users":505534},{"week":162,"users":504004},{"week":163,"users":528485},{"week":164,"users":527567},{"week":165,"users":470036},{"week":166,"users":354669},{"week":167,"users":502779},{"week":168,"users":524506},{"week":169,"users":513490},{"week":170,"users":487479},{"week":171,"users":499719},{"week":172,"users":457796},{"week":173,"users":322232},{"week":174,"users":483501},{"week":175,"users":492375},{"week":176,"users":454429},{"week":177,"users":455347},{"week":178,"users":379456},{"week":179,"users":423216},{"week":180,"users":280002}],"home":[{"week":0,"users":562146},{"week":1,"users":564900},{"week":2,"users":555720},{"week":3,"users":545315},{"week":4,"users":545315},{"week":5,"users":455041},{"week":6,"users":562758},{"week":7,"users":548069},{"week":8,"users":561840},{"week":9,"users":563982},{"week":10,"users":525424},{"week":11,"users":541337},{"week":12,"users":459632},{"week":13,"users":577141},{"week":14,"users":579283},{"week":15,"users":564594},{"week":16,"users":586627},{"week":17,"users":543785},{"week":18,"users":540725},{"week":19,"users":466976},{"week":20,"users":579895},{"week":21,"users":575305},{"week":22,"users":573163},{"week":23,"users":574693},{"week":24,"users":560004},{"week":25,"users":527567},{"week":26,"users":437293},{"week":27,"users":533993},{"week":28,"users":609578},{"week":29,"users":578365},{"week":30,"users":587851},{"week":31,"users":562758},{"week":32,"users":536441},{"week":33,"users":478604},{"week":34,"users":580507},{"week":35,"users":596419},{"week":36,"users":565818},{"week":37,"users":573469},{"week":38,"users":536747},{"week":39,"users":526036},{"week":40,"users":436987},{"week":41,"users":558474},{"week":42,"users":604070},{"week":43,"users":600398},{"week":44,"users":627939},{"week":45,"users":590299},{"week":46,"users":560922},{"week":47,"users":478910},{"week":48,"users":600398},{"week":49,"users":625185},{"week":50,"users":577447},{"week":51,"users":552660},{"week":52,"users":593053},{"week":53,"users":583261},{"week":54,"users":487479},{"week":55,"users":629163},{"week":56,"users":643546},{"week":57,"users":519916},{"week":58,"users":469424},{"week":59,"users":615086},{"week":60,"users":613862},{"week":61,"users":506758},{"week":62,"users":622737},{"week":63,"users":620289},{"week":64,"users":598256},{"week":65,"users":601010},{"week":66,"users":589381},{"week":67,"users":569796},{"week":68,"users":509512},{"week":69,"users":605906},{"week":70,"users":568266},{"week":71,"users":509818},{"week":72,"users":492375},{"week":73,"users":522670},{"week":74,"users":536441},{"week":75,"users":488703},{"week":76,"users":601010},{"week":77,"users":616004},{"week":78,"users":575611},{"week":79,"users":588463},{"week":80,"users":517468},{"week":81,"users":517468},{"week":82,"users":434539},{"week":83,"users":443719},{"week":84,"users":563982},{"week":85,"users":531851},{"week":86,"users":597032},{"week":87,"users":551436},{"week":88,"users":504922},{"week":89,"users":417096},{"week":90,"users":560004},{"week":91,"users":531851},{"week":92,"users":525118},{"week":93,"users":521752},{"week":94,"users":507982},{"week":95,"users":510430},{"week":96,"users":415872},{"week":97,"users":551130},{"week":98,"users":530015},{"week":99,"users":545315},{"week":100,"users":553578},{"week":101,"users":523894},{"week":102,"users":502779},{"week":103,"users":377926},{"week":104,"users":507676},{"week":105,"users":545621},{"week":106,"users":522976},{"week":107,"users":507064},{"week":108,"users":498189},{"week":109,"users":515632},{"week":110,"users":402713},{"week":111,"users":538583},{"week":112,"users":530321},{"week":113,"users":519610},{"week":114,"users":521446},{"week":115,"users":494517},{"week":116,"users":487785},{"week":117,"users":343041},{"week":118,"users":435151},{"week":119,"users":429336},{"week":120,"users":341817},{"week":121,"users":457490},{"week":122,"users":447085},{"week":123,"users":470342},{"week":124,"users":360177},{"week":125,"users":477380},{"week":126,"users":514408},{"week":127,"users":509512},{"week":128,"users":520222},{"week":129,"users":483195},{"week":130,"users":470648},{"week":131,"users":402407},{"week":132,"users":495435},{"week":133,"users":517162},{"week":134,"users":510430},{"week":135,"users":480747},{"week":136,"users":455041},{"week":137,"users":439741},{"week":138,"users":392615},{"week":139,"users":486561},{"week":140,"users":506452},{"week":141,"users":471566},{"week":142,"users":476156},{"week":143,"users":465752},{"week":144,"users":473708},{"week":145,"users":387107},{"week":146,"users":479829},{"week":147,"users":475850},{"week":148,"users":477992},{"week":149,"users":454429},{"week":150,"users":480441},{"week":151,"users":460244},{"week":152,"users":381598},{"week":153,"users":480747},{"week":154,"users":497883},{"week":155,"users":471260},{"week":156,"users":458102},{"week":157,"users":449839},{"week":158,"users":444943},{"week":159,"users":362626},{"week":160,"users":439435},{"week":161,"users":470342},{"week":162,"users":433621},{"week":163,"users":474014},{"week":164,"users":460550},{"week":165,"users":432702},{"week":166,"users":367828},{"week":167,"users":432702},{"week":168,"users":432090},{"week":169,"users":441271},{"week":170,"users":413730},{"week":171,"users":360483},{"week":172,"users":319784},{"week":173,"users":249095},{"week":174,"users":321008},{"week":175,"users":331106},{"week":176,"users":302953},{"week":177,"users":302341},{"week":178,"users":257969},{"week":179,"users":296221},{"week":180,"users":215127}]},internal:{"pdp":[{"week":0,"users":671699},{"week":1,"users":695568},{"week":2,"users":676595},{"week":3,"users":671699},{"week":4,"users":668945},{"week":5,"users":567042},{"week":6,"users":682103},{"week":7,"users":676901},{"week":8,"users":698934},{"week":9,"users":686081},{"week":10,"users":638955},{"week":11,"users":654562},{"week":12,"users":552048},{"week":13,"users":694956},{"week":14,"users":703218},{"week":15,"users":677207},{"week":16,"users":712704},{"week":17,"users":687611},{"week":18,"users":641097},{"week":19,"users":568572},{"week":20,"users":711174},{"week":21,"users":716377},{"week":22,"users":686693},{"week":23,"users":670781},{"week":24,"users":714847},{"week":25,"users":668639},{"week":26,"users":553272},{"week":27,"users":679349},{"week":28,"users":712092},{"week":29,"users":688529},{"week":30,"users":703524},{"week":31,"users":664660},{"week":32,"users":677207},{"week":33,"users":595195},{"week":34,"users":699546},{"week":35,"users":713623},{"week":36,"users":692508},{"week":37,"users":677513},{"week":38,"users":683021},{"week":39,"users":664966},{"week":40,"users":577753},{"week":41,"users":708114},{"week":42,"users":731065},{"week":43,"users":717601},{"week":44,"users":751568},{"week":45,"users":713623},{"week":46,"users":692202},{"week":47,"users":596113},{"week":48,"users":699240},{"week":49,"users":747284},{"week":50,"users":709338},{"week":51,"users":655480},{"week":52,"users":698016},{"week":53,"users":705666},{"week":54,"users":586933},{"week":55,"users":734737},{"week":56,"users":705054},{"week":57,"users":611108},{"week":58,"users":536747},{"week":59,"users":746672},{"week":60,"users":770541},{"week":61,"users":644770},{"week":62,"users":755546},{"week":63,"users":743000},{"week":64,"users":747590},{"week":65,"users":749120},{"week":66,"users":722191},{"week":67,"users":696792},{"week":68,"users":620901},{"week":69,"users":647524},{"week":70,"users":656398},{"week":71,"users":642015},{"week":72,"users":619983},{"week":73,"users":641097},{"week":74,"users":660682},{"week":75,"users":605294},{"week":76,"users":716071},{"week":77,"users":727087},{"week":78,"users":727393},{"week":79,"users":727393},{"week":80,"users":668639},{"week":81,"users":660376},{"week":82,"users":586321},{"week":83,"users":586933},{"week":84,"users":725251},{"week":85,"users":678431},{"week":86,"users":698934},{"week":87,"users":718519},{"week":88,"users":642627},{"week":89,"users":526343},{"week":90,"users":686693},{"week":91,"users":704748},{"week":92,"users":672311},{"week":93,"users":672617},{"week":94,"users":654256},{"week":95,"users":652726},{"week":96,"users":571020},{"week":97,"users":696792},{"week":98,"users":651196},{"week":99,"users":685775},{"week":100,"users":662518},{"week":101,"users":662212},{"week":102,"users":654256},{"week":103,"users":517774},{"week":104,"users":646606},{"week":105,"users":686387},{"week":106,"users":634365},{"week":107,"users":566736},{"week":108,"users":562452},{"week":109,"users":580507},{"week":110,"users":466670},{"week":111,"users":589993},{"week":112,"users":618758},{"week":113,"users":679349},{"week":114,"users":675371},{"week":115,"users":630387},{"week":116,"users":619064},{"week":117,"users":465446},{"week":118,"users":565512},{"week":119,"users":544397},{"week":120,"users":449839},{"week":121,"users":578977},{"week":122,"users":556332},{"week":123,"users":583567},{"week":124,"users":466058},{"week":125,"users":610496},{"week":126,"users":650278},{"week":127,"users":641403},{"week":128,"users":645688},{"week":129,"users":594889},{"week":130,"users":603152},{"week":131,"users":520834},{"week":132,"users":616004},{"week":133,"users":635283},{"week":134,"users":596419},{"week":135,"users":587545},{"week":136,"users":582037},{"week":137,"users":540419},{"week":138,"users":490845},{"week":139,"users":611108},{"week":140,"users":597644},{"week":141,"users":583261},{"week":142,"users":602846},{"week":143,"users":583873},{"week":144,"users":594889},{"week":145,"users":485643},{"week":146,"users":613250},{"week":147,"users":614168},{"week":148,"users":576223},{"week":149,"users":551130},{"week":150,"users":581119},{"week":151,"users":536747},{"week":152,"users":435763},{"week":153,"users":567960},{"week":154,"users":582649},{"week":155,"users":578977},{"week":156,"users":573469},{"week":157,"users":551436},{"week":158,"users":578059},{"week":159,"users":469424},{"week":160,"users":563370},{"week":161,"users":586015},{"week":162,"users":550824},{"week":163,"users":589075},{"week":164,"users":574693},{"week":165,"users":549599},{"week":166,"users":460550},{"week":167,"users":556638},{"week":168,"users":551742},{"week":169,"users":574081},{"week":170,"users":545927},{"week":171,"users":493293},{"week":172,"users":444637},{"week":173,"users":362932},{"week":174,"users":427806},{"week":175,"users":469730},{"week":176,"users":456878},{"week":177,"users":445861},{"week":178,"users":416484},{"week":179,"users":427194},{"week":180,"users":355587}],"mcat":[{"week":0,"users":341816},{"week":1,"users":343040},{"week":2,"users":354057},{"week":3,"users":354363},{"week":4,"users":349773},{"week":5,"users":272963},{"week":6,"users":368745},{"week":7,"users":354669},{"week":8,"users":372723},{"week":9,"users":374866},{"week":10,"users":335390},{"week":11,"users":348242},{"week":12,"users":265313},{"week":13,"users":384658},{"week":14,"users":388024},{"week":15,"users":373029},{"week":16,"users":378538},{"week":17,"users":354363},{"week":18,"users":350385},{"week":19,"users":290406},{"week":20,"users":388942},{"week":21,"users":391390},{"week":22,"users":362931},{"week":23,"users":367827},{"week":24,"users":383740},{"week":25,"users":347018},{"week":26,"users":258887},{"week":27,"users":362931},{"week":28,"users":390166},{"week":29,"users":375478},{"week":30,"users":369357},{"week":31,"users":354363},{"week":32,"users":354669},{"week":33,"users":291630},{"week":34,"users":373948},{"week":35,"users":384046},{"week":36,"users":379456},{"week":37,"users":381292},{"week":38,"users":357729},{"week":39,"users":333860},{"week":40,"users":288264},{"week":41,"users":368133},{"week":42,"users":386800},{"week":43,"users":388942},{"week":44,"users":403937},{"week":45,"users":377314},{"week":46,"users":355893},{"week":47,"users":285510},{"week":48,"users":387412},{"week":49,"users":389554},{"week":50,"users":385270},{"week":51,"users":349161},{"week":52,"users":374254},{"week":53,"users":370275},{"week":54,"users":302953},{"week":55,"users":399653},{"week":56,"users":387718},{"week":57,"users":318865},{"week":58,"users":292854},{"week":59,"users":403019},{"week":60,"users":410669},{"week":61,"users":319783},{"week":62,"users":416483},{"week":63,"users":401795},{"week":64,"users":384046},{"week":65,"users":416483},{"week":66,"users":406079},{"week":67,"users":371499},{"week":68,"users":305707},{"week":69,"users":377620},{"week":70,"users":358953},{"week":71,"users":352221},{"week":72,"users":328658},{"week":73,"users":344570},{"week":74,"users":345488},{"week":75,"users":310297},{"week":76,"users":388942},{"week":77,"users":395674},{"week":78,"users":392614},{"week":79,"users":391696},{"week":80,"users":363849},{"week":81,"users":352221},{"week":82,"users":292548},{"week":83,"users":290406},{"week":84,"users":384964},{"week":85,"users":362319},{"week":86,"users":393532},{"week":87,"users":396286},{"week":88,"users":361707},{"week":89,"users":273575},{"week":90,"users":377620},{"week":91,"users":397511},{"week":92,"users":376090},{"week":93,"users":373336},{"week":94,"users":357729},{"week":95,"users":360177},{"week":96,"users":302035},{"week":97,"users":388942},{"week":98,"users":365073},{"week":99,"users":393838},{"week":100,"users":376396},{"week":101,"users":378232},{"week":102,"users":350385},{"week":103,"users":263783},{"week":104,"users":360789},{"week":105,"users":377926},{"week":106,"users":359259},{"week":107,"users":354363},{"week":108,"users":343040},{"week":109,"users":334472},{"week":110,"users":264089},{"week":111,"users":373029},{"week":112,"users":373336},{"week":113,"users":385270},{"week":114,"users":395980},{"week":115,"users":357729},{"week":116,"users":352833},{"week":117,"users":242668},{"week":118,"users":319783},{"week":119,"users":307543},{"week":120,"users":250624},{"week":121,"users":328964},{"week":122,"users":326822},{"week":123,"users":338450},{"week":124,"users":256439},{"week":125,"users":346712},{"week":126,"users":378844},{"week":127,"users":380680},{"week":128,"users":381598},{"week":129,"users":341816},{"week":130,"users":352221},{"week":131,"users":292854},{"week":132,"users":365073},{"week":133,"users":365379},{"week":134,"users":352833},{"week":135,"users":345182},{"week":136,"users":345794},{"week":137,"users":319783},{"week":138,"users":276942},{"week":139,"users":359871},{"week":140,"users":356811},{"week":141,"users":338450},{"week":142,"users":359259},{"week":143,"users":353445},{"week":144,"users":335084},{"week":145,"users":259805},{"week":146,"users":343652},{"week":147,"users":344264},{"week":148,"users":331412},{"week":149,"users":306931},{"week":150,"users":338450},{"week":151,"users":309073},{"week":152,"users":241138},{"week":153,"users":322537},{"week":154,"users":344264},{"week":155,"users":332024},{"week":156,"users":332024},{"week":157,"users":315193},{"week":158,"users":321925},{"week":159,"users":258581},{"week":160,"users":314275},{"week":161,"users":338756},{"week":162,"users":327128},{"week":163,"users":346100},{"week":164,"users":317335},{"week":165,"users":313663},{"week":166,"users":251236},{"week":167,"users":323761},{"week":168,"users":312439},{"week":169,"users":341510},{"week":170,"users":321925},{"week":171,"users":290100},{"week":172,"users":250930},{"week":173,"users":201662},{"week":174,"users":250624},{"week":175,"users":277248},{"week":176,"users":246646},{"week":177,"users":261641},{"week":178,"users":224613},{"week":179,"users":225225},{"week":180,"users":193706}],"company":[{"week":0,"users":365073},{"week":1,"users":371805},{"week":2,"users":362013},{"week":3,"users":374560},{"week":4,"users":355893},{"week":5,"users":241138},{"week":6,"users":378538},{"week":7,"users":381292},{"week":8,"users":372723},{"week":9,"users":398123},{"week":10,"users":359565},{"week":11,"users":355893},{"week":12,"users":248482},{"week":13,"users":379150},{"week":14,"users":400265},{"week":15,"users":379762},{"week":16,"users":393226},{"week":17,"users":367215},{"week":18,"users":345182},{"week":19,"users":251848},{"week":20,"users":378538},{"week":21,"users":392002},{"week":22,"users":394756},{"week":23,"users":380680},{"week":24,"users":402407},{"week":25,"users":348854},{"week":26,"users":244810},{"week":27,"users":362013},{"week":28,"users":378232},{"week":29,"users":375478},{"week":30,"users":384352},{"week":31,"users":371805},{"week":32,"users":354669},{"week":33,"users":266843},{"week":34,"users":383434},{"week":35,"users":397511},{"week":36,"users":392002},{"week":37,"users":375478},{"week":38,"users":378232},{"week":39,"users":349467},{"week":40,"users":264701},{"week":41,"users":397511},{"week":42,"users":397817},{"week":43,"users":388636},{"week":44,"users":433926},{"week":45,"users":396898},{"week":46,"users":363237},{"week":47,"users":261029},{"week":48,"users":392002},{"week":49,"users":412505},{"week":50,"users":398429},{"week":51,"users":353139},{"week":52,"users":377620},{"week":53,"users":381292},{"week":54,"users":269597},{"week":55,"users":411587},{"week":56,"users":401795},{"week":57,"users":336308},{"week":58,"users":297444},{"week":59,"users":418931},{"week":60,"users":412199},{"week":61,"users":288264},{"week":62,"users":410975},{"week":63,"users":416789},{"week":64,"users":406385},{"week":65,"users":424746},{"week":66,"users":414341},{"week":67,"users":385882},{"week":68,"users":277554},{"week":69,"users":386800},{"week":70,"users":383434},{"week":71,"users":341816},{"week":72,"users":321619},{"week":73,"users":358953},{"week":74,"users":351303},{"week":75,"users":262253},{"week":76,"users":404549},{"week":77,"users":402101},{"week":78,"users":409139},{"week":79,"users":414953},{"week":80,"users":370581},{"week":81,"users":355587},{"week":82,"users":268373},{"week":83,"users":282144},{"week":84,"users":397511},{"week":85,"users":382822},{"week":86,"users":392002},{"week":87,"users":396286},{"week":88,"users":363543},{"week":89,"users":251542},{"week":90,"users":388942},{"week":91,"users":415259},{"week":92,"users":386800},{"week":93,"users":390472},{"week":94,"users":362013},{"week":95,"users":353445},{"week":96,"users":257357},{"week":97,"users":383740},{"week":98,"users":373336},{"week":99,"users":394756},{"week":100,"users":382516},{"week":101,"users":382516},{"week":102,"users":351303},{"week":103,"users":240832},{"week":104,"users":364155},{"week":105,"users":393532},{"week":106,"users":374560},{"week":107,"users":375478},{"week":108,"users":354363},{"week":109,"users":358953},{"week":110,"users":237466},{"week":111,"users":382210},{"week":112,"users":389860},{"week":113,"users":405773},{"week":114,"users":387106},{"week":115,"users":357729},{"week":116,"users":349161},{"week":117,"users":214515},{"week":118,"users":330188},{"week":119,"users":287040},{"week":120,"users":228898},{"week":121,"users":353445},{"week":122,"users":330494},{"week":123,"users":350079},{"week":124,"users":223695},{"week":125,"users":372111},{"week":126,"users":388330},{"week":127,"users":386188},{"week":128,"users":381904},{"week":129,"users":370275},{"week":130,"users":356811},{"week":131,"users":257357},{"week":132,"users":370887},{"week":133,"users":378844},{"week":134,"users":361095},{"week":135,"users":354975},{"week":136,"users":348854},{"week":137,"users":325292},{"week":138,"users":235630},{"week":139,"users":362625},{"week":140,"users":355893},{"week":141,"users":358341},{"week":142,"users":365073},{"week":143,"users":352527},{"week":144,"users":338756},{"week":145,"users":249400},{"week":146,"users":369969},{"week":147,"users":373029},{"week":148,"users":359565},{"week":149,"users":339980},{"week":150,"users":365991},{"week":151,"users":328352},{"week":152,"users":232570},{"week":153,"users":358035},{"week":154,"users":365379},{"week":155,"users":356199},{"week":156,"users":371193},{"week":157,"users":342734},{"week":158,"users":341816},{"week":159,"users":229204},{"week":160,"users":354057},{"week":161,"users":359565},{"week":162,"users":345182},{"week":163,"users":371805},{"week":164,"users":354057},{"week":165,"users":332942},{"week":166,"users":219105},{"week":167,"users":350691},{"week":168,"users":352221},{"week":169,"users":357423},{"week":170,"users":347018},{"week":171,"users":313663},{"week":172,"users":275411},{"week":173,"users":188810},{"week":174,"users":281532},{"week":175,"users":311521},{"week":176,"users":293772},{"week":177,"users":287346},{"week":178,"users":233794},{"week":179,"users":257357},{"week":180,"users":175651}],"home":[{"week":0,"users":521041},{"week":1,"users":545518},{"week":2,"users":529302},{"week":3,"users":518288},{"week":4,"users":522571},{"week":5,"users":465357},{"week":6,"users":541234},{"week":7,"users":522265},{"week":8,"users":538787},{"week":9,"users":553167},{"week":10,"users":494117},{"week":11,"users":517982},{"week":12,"users":460156},{"week":13,"users":554390},{"week":14,"users":548577},{"week":15,"users":533891},{"week":16,"users":571524},{"week":17,"users":532668},{"week":18,"users":501154},{"week":19,"users":472088},{"week":20,"users":561427},{"week":21,"users":571524},{"week":22,"users":536339},{"week":23,"users":539704},{"week":24,"users":554696},{"week":25,"users":518288},{"week":26,"users":449754},{"week":27,"users":526548},{"week":28,"users":572748},{"week":29,"users":543070},{"week":30,"users":552249},{"week":31,"users":529302},{"week":32,"users":538175},{"week":33,"users":490140},{"week":34,"users":560203},{"week":35,"users":565099},{"week":36,"users":532362},{"week":37,"users":551637},{"week":38,"users":540622},{"week":39,"users":528690},{"week":40,"users":469641},{"week":41,"users":565405},{"week":42,"users":597224},{"week":43,"users":569076},{"week":44,"users":614969},{"week":45,"users":573360},{"week":46,"users":558980},{"week":47,"users":500542},{"week":48,"users":567546},{"week":49,"users":590493},{"week":50,"users":567240},{"week":51,"users":535421},{"week":52,"users":558674},{"week":53,"users":581620},{"week":54,"users":484021},{"week":55,"users":585598},{"week":56,"users":572136},{"week":57,"users":483715},{"week":58,"users":435068},{"week":59,"users":596000},{"week":60,"users":603037},{"week":61,"users":535115},{"week":62,"users":605485},{"week":63,"users":591717},{"week":64,"users":581620},{"week":65,"users":602425},{"week":66,"users":578561},{"week":67,"users":562957},{"week":68,"users":508191},{"week":69,"users":516452},{"week":70,"users":512474},{"week":71,"users":521653},{"week":72,"users":503602},{"week":73,"users":505132},{"week":74,"users":523489},{"week":75,"users":502378},{"week":76,"users":544906},{"week":77,"users":518594},{"week":78,"users":506049},{"week":79,"users":514004},{"week":80,"users":447000},{"week":81,"users":461992},{"week":82,"users":398047},{"week":83,"users":409062},{"week":84,"users":478819},{"week":85,"users":465969},{"week":86,"users":489222},{"week":87,"users":478514},{"week":88,"users":420688},{"week":89,"users":356743},{"week":90,"users":452507},{"week":91,"users":462910},{"week":92,"users":436598},{"week":93,"users":428031},{"week":94,"users":401413},{"week":95,"users":416099},{"week":96,"users":363780},{"week":97,"users":447918},{"week":98,"users":402025},{"week":99,"users":434456},{"week":100,"users":438739},{"week":101,"users":425583},{"week":102,"users":415793},{"week":103,"users":322171},{"week":104,"users":407226},{"week":105,"users":442717},{"week":106,"users":401719},{"week":107,"users":372347},{"week":108,"users":386727},{"week":109,"users":387339},{"week":110,"users":318499},{"week":111,"users":406002},{"week":112,"users":419770},{"week":113,"users":433232},{"week":114,"users":435374},{"week":115,"users":392540},{"week":116,"users":387339},{"week":117,"users":287598},{"week":118,"users":348483},{"week":119,"users":340834},{"week":120,"users":284844},{"week":121,"users":364698},{"week":122,"users":332879},{"week":123,"users":349401},{"week":124,"users":281479},{"week":125,"users":367758},{"week":126,"users":402637},{"week":127,"users":383056},{"week":128,"users":398353},{"week":129,"users":372347},{"week":130,"users":355520},{"week":131,"users":308403},{"week":132,"users":376325},{"week":133,"users":387951},{"week":134,"users":368982},{"week":135,"users":369900},{"week":136,"users":357355},{"week":137,"users":323088},{"week":138,"users":294941},{"week":139,"users":379384},{"week":140,"users":363474},{"week":141,"users":360109},{"week":142,"users":366534},{"week":143,"users":358885},{"week":144,"users":357049},{"week":145,"users":316357},{"week":146,"users":363474},{"week":147,"users":374183},{"week":148,"users":364392},{"week":149,"users":340528},{"week":150,"users":353072},{"week":151,"users":336244},{"week":152,"users":285150},{"week":153,"users":352766},{"week":154,"users":364086},{"week":155,"users":366228},{"week":156,"users":355520},{"week":157,"users":339610},{"week":158,"users":347259},{"week":159,"users":283008},{"week":160,"users":331043},{"week":161,"users":349706},{"week":162,"users":327678},{"week":163,"users":357661},{"week":164,"users":352460},{"week":165,"users":341446},{"week":166,"users":291269},{"week":167,"users":343281},{"week":168,"users":327678},{"week":169,"users":340528},{"week":170,"users":312686},{"week":171,"users":213862},{"week":172,"users":193975},{"week":173,"users":149612},{"week":174,"users":177760},{"week":175,"users":194587},{"week":176,"users":180819},{"week":177,"users":175924},{"week":178,"users":153283},{"week":179,"users":169805},{"week":180,"users":128501}]}};
+
+function loadRealData() {
+  // Inject 'overall' page type data (total users across all page types) from uploaded xlsx
+  REAL_DATA_GA_DAILY.overall.overall = [{"week": 0, "users": 2278101}, {"week": 1, "users": 2261354}, {"week": 2, "users": 2236995}, {"week": 3, "users": 2187574}, {"week": 4, "users": 2176595}, {"week": 5, "users": 1888035}, {"week": 6, "users": 2270836}, {"week": 7, "users": 2201232}, {"week": 8, "users": 2242872}, {"week": 9, "users": 2238009}, {"week": 10, "users": 2075315}, {"week": 11, "users": 2093215}, {"week": 12, "users": 1815293}, {"week": 13, "users": 2252675}, {"week": 14, "users": 2248419}, {"week": 15, "users": 2199284}, {"week": 16, "users": 2275869}, {"week": 17, "users": 2182453}, {"week": 18, "users": 2102714}, {"week": 19, "users": 1839105}, {"week": 20, "users": 2207129}, {"week": 21, "users": 2252267}, {"week": 22, "users": 2201210}, {"week": 23, "users": 2201180}, {"week": 24, "users": 2195525}, {"week": 25, "users": 2119483}, {"week": 26, "users": 1756538}, {"week": 27, "users": 2163827}, {"week": 28, "users": 2215709}, {"week": 29, "users": 2192615}, {"week": 30, "users": 2215216}, {"week": 31, "users": 2179124}, {"week": 32, "users": 2083962}, {"week": 33, "users": 1802987}, {"week": 34, "users": 2241677}, {"week": 35, "users": 2226985}, {"week": 36, "users": 2158226}, {"week": 37, "users": 2143783}, {"week": 38, "users": 2137814}, {"week": 39, "users": 2092157}, {"week": 40, "users": 1763170}, {"week": 41, "users": 2251901}, {"week": 42, "users": 2281630}, {"week": 43, "users": 2264864}, {"week": 44, "users": 2314110}, {"week": 45, "users": 2237655}, {"week": 46, "users": 2195555}, {"week": 47, "users": 1873891}, {"week": 48, "users": 2278972}, {"week": 49, "users": 2280253}, {"week": 50, "users": 2214147}, {"week": 51, "users": 2118954}, {"week": 52, "users": 2179559}, {"week": 53, "users": 2191378}, {"week": 54, "users": 1845503}, {"week": 55, "users": 2259160}, {"week": 56, "users": 2199553}, {"week": 57, "users": 2014923}, {"week": 58, "users": 1752057}, {"week": 59, "users": 2219843}, {"week": 60, "users": 2241119}, {"week": 61, "users": 1929805}, {"week": 62, "users": 2338174}, {"week": 63, "users": 2337440}, {"week": 64, "users": 2297872}, {"week": 65, "users": 2344303}, {"week": 66, "users": 2258674}, {"week": 67, "users": 2235821}, {"week": 68, "users": 1870191}, {"week": 69, "users": 2156237}, {"week": 70, "users": 2148349}, {"week": 71, "users": 2002389}, {"week": 72, "users": 2025421}, {"week": 73, "users": 2094849}, {"week": 74, "users": 2126471}, {"week": 75, "users": 1888178}, {"week": 76, "users": 2281940}, {"week": 77, "users": 2331835}, {"week": 78, "users": 2261820}, {"week": 79, "users": 2263754}, {"week": 80, "users": 2177124}, {"week": 81, "users": 2152497}, {"week": 82, "users": 1870967}, {"week": 83, "users": 1986181}, {"week": 84, "users": 2383168}, {"week": 85, "users": 2278117}, {"week": 86, "users": 2317861}, {"week": 87, "users": 2338370}, {"week": 88, "users": 2214846}, {"week": 89, "users": 1883963}, {"week": 90, "users": 2292632}, {"week": 91, "users": 2322387}, {"week": 92, "users": 2314439}, {"week": 93, "users": 2335028}, {"week": 94, "users": 2267698}, {"week": 95, "users": 2218123}, {"week": 96, "users": 1940823}, {"week": 97, "users": 2372959}, {"week": 98, "users": 2377923}, {"week": 99, "users": 2321009}, {"week": 100, "users": 2308870}, {"week": 101, "users": 2340239}, {"week": 102, "users": 2204907}, {"week": 103, "users": 1845588}, {"week": 104, "users": 2323007}, {"week": 105, "users": 2379650}, {"week": 106, "users": 2305219}, {"week": 107, "users": 2293753}, {"week": 108, "users": 2258448}, {"week": 109, "users": 2297987}, {"week": 110, "users": 1960329}, {"week": 111, "users": 2435125}, {"week": 112, "users": 2509505}, {"week": 113, "users": 2366878}, {"week": 114, "users": 2317883}, {"week": 115, "users": 2339078}, {"week": 116, "users": 2234223}, {"week": 117, "users": 1785021}, {"week": 118, "users": 2104009}, {"week": 119, "users": 1971602}, {"week": 120, "users": 1695154}, {"week": 121, "users": 2051710}, {"week": 122, "users": 2150099}, {"week": 123, "users": 2216325}, {"week": 124, "users": 1758144}, {"week": 125, "users": 2265537}, {"week": 126, "users": 2399161}, {"week": 127, "users": 2388735}, {"week": 128, "users": 2431858}, {"week": 129, "users": 2334214}, {"week": 130, "users": 2370242}, {"week": 131, "users": 2043373}, {"week": 132, "users": 2420231}, {"week": 133, "users": 2424232}, {"week": 134, "users": 2322060}, {"week": 135, "users": 2207360}, {"week": 136, "users": 2237818}, {"week": 137, "users": 2182130}, {"week": 138, "users": 1960118}, {"week": 139, "users": 2391816}, {"week": 140, "users": 2342113}, {"week": 141, "users": 2287004}, {"week": 142, "users": 2362383}, {"week": 143, "users": 2349094}, {"week": 144, "users": 2430331}, {"week": 145, "users": 2229109}, {"week": 146, "users": 2564270}, {"week": 147, "users": 2564961}, {"week": 148, "users": 2451706}, {"week": 149, "users": 2474079}, {"week": 150, "users": 2462154}, {"week": 151, "users": 2435034}, {"week": 152, "users": 2160355}, {"week": 153, "users": 2571340}, {"week": 154, "users": 2623557}, {"week": 155, "users": 2607621}, {"week": 156, "users": 2606248}, {"week": 157, "users": 2570572}, {"week": 158, "users": 2583947}, {"week": 159, "users": 2293087}, {"week": 160, "users": 2622519}, {"week": 161, "users": 2697825}, {"week": 162, "users": 2596862}, {"week": 163, "users": 2706193}, {"week": 164, "users": 2660840}, {"week": 165, "users": 2626530}, {"week": 166, "users": 2316945}, {"week": 167, "users": 2664815}, {"week": 168, "users": 2712448}, {"week": 169, "users": 2722397}, {"week": 170, "users": 2666369}, {"week": 171, "users": 2723925}, {"week": 172, "users": 2654146}, {"week": 173, "users": 2347074}, {"week": 174, "users": 2782786}, {"week": 175, "users": 2716963}, {"week": 176, "users": 2650649}, {"week": 177, "users": 2673726}, {"week": 178, "users": 2517937}, {"week": 179, "users": 2586703}, {"week": 180, "users": 2269798}];
+  REAL_DATA_GA_DAILY.organic.overall = [{"week": 0, "users": 734786}, {"week": 1, "users": 742060}, {"week": 2, "users": 733337}, {"week": 3, "users": 728428}, {"week": 4, "users": 701353}, {"week": 5, "users": 707662}, {"week": 6, "users": 715979}, {"week": 7, "users": 710430}, {"week": 8, "users": 711121}, {"week": 9, "users": 715449}, {"week": 10, "users": 696647}, {"week": 11, "users": 716667}, {"week": 12, "users": 716411}, {"week": 13, "users": 723291}, {"week": 14, "users": 738664}, {"week": 15, "users": 726101}, {"week": 16, "users": 724803}, {"week": 17, "users": 721191}, {"week": 18, "users": 706827}, {"week": 19, "users": 712170}, {"week": 20, "users": 706012}, {"week": 21, "users": 711290}, {"week": 22, "users": 706946}, {"week": 23, "users": 703410}, {"week": 24, "users": 698131}, {"week": 25, "users": 696685}, {"week": 26, "users": 676828}, {"week": 27, "users": 695255}, {"week": 28, "users": 706160}, {"week": 29, "users": 708908}, {"week": 30, "users": 710913}, {"week": 31, "users": 707524}, {"week": 32, "users": 681518}, {"week": 33, "users": 702783}, {"week": 34, "users": 702832}, {"week": 35, "users": 708427}, {"week": 36, "users": 697539}, {"week": 37, "users": 693514}, {"week": 38, "users": 681336}, {"week": 39, "users": 666609}, {"week": 40, "users": 668629}, {"week": 41, "users": 688655}, {"week": 42, "users": 695205}, {"week": 43, "users": 708025}, {"week": 44, "users": 707931}, {"week": 45, "users": 681594}, {"week": 46, "users": 660178}, {"week": 47, "users": 655327}, {"week": 48, "users": 689229}, {"week": 49, "users": 711066}, {"week": 50, "users": 719826}, {"week": 51, "users": 689982}, {"week": 52, "users": 699183}, {"week": 53, "users": 696221}, {"week": 54, "users": 707031}, {"week": 55, "users": 710853}, {"week": 56, "users": 729711}, {"week": 57, "users": 698418}, {"week": 58, "users": 667864}, {"week": 59, "users": 713073}, {"week": 60, "users": 694450}, {"week": 61, "users": 705315}, {"week": 62, "users": 718091}, {"week": 63, "users": 716637}, {"week": 64, "users": 712681}, {"week": 65, "users": 703641}, {"week": 66, "users": 706139}, {"week": 67, "users": 694904}, {"week": 68, "users": 702576}, {"week": 69, "users": 739408}, {"week": 70, "users": 710620}, {"week": 71, "users": 674667}, {"week": 72, "users": 677763}, {"week": 73, "users": 671076}, {"week": 74, "users": 679276}, {"week": 75, "users": 678086}, {"week": 76, "users": 708012}, {"week": 77, "users": 706250}, {"week": 78, "users": 697260}, {"week": 79, "users": 694108}, {"week": 80, "users": 686115}, {"week": 81, "users": 680362}, {"week": 82, "users": 676660}, {"week": 83, "users": 670730}, {"week": 84, "users": 712220}, {"week": 85, "users": 694081}, {"week": 86, "users": 711758}, {"week": 87, "users": 694378}, {"week": 88, "users": 675935}, {"week": 89, "users": 671271}, {"week": 90, "users": 690622}, {"week": 91, "users": 688223}, {"week": 92, "users": 693611}, {"week": 93, "users": 693206}, {"week": 94, "users": 669722}, {"week": 95, "users": 669611}, {"week": 96, "users": 655079}, {"week": 97, "users": 683154}, {"week": 98, "users": 697137}, {"week": 99, "users": 690227}, {"week": 100, "users": 704222}, {"week": 101, "users": 686749}, {"week": 102, "users": 644166}, {"week": 103, "users": 581804}, {"week": 104, "users": 648100}, {"week": 105, "users": 679078}, {"week": 106, "users": 686378}, {"week": 107, "users": 708677}, {"week": 108, "users": 689146}, {"week": 109, "users": 642405}, {"week": 110, "users": 610077}, {"week": 111, "users": 640599}, {"week": 112, "users": 643800}, {"week": 113, "users": 667796}, {"week": 114, "users": 663095}, {"week": 115, "users": 690967}, {"week": 116, "users": 667044}, {"week": 117, "users": 624298}, {"week": 118, "users": 650990}, {"week": 119, "users": 671741}, {"week": 120, "users": 639694}, {"week": 121, "users": 653375}, {"week": 122, "users": 672307}, {"week": 123, "users": 686089}, {"week": 124, "users": 626757}, {"week": 125, "users": 669697}, {"week": 126, "users": 668064}, {"week": 127, "users": 660965}, {"week": 128, "users": 680613}, {"week": 129, "users": 674106}, {"week": 130, "users": 639295}, {"week": 131, "users": 635997}, {"week": 132, "users": 663083}, {"week": 133, "users": 661655}, {"week": 134, "users": 658669}, {"week": 135, "users": 652431}, {"week": 136, "users": 640432}, {"week": 137, "users": 549836}, {"week": 138, "users": 512894}, {"week": 139, "users": 550393}, {"week": 140, "users": 647012}, {"week": 141, "users": 654241}, {"week": 142, "users": 666356}, {"week": 143, "users": 663551}, {"week": 144, "users": 622242}, {"week": 145, "users": 627669}, {"week": 146, "users": 641164}, {"week": 147, "users": 659329}, {"week": 148, "users": 670838}, {"week": 149, "users": 676297}, {"week": 150, "users": 667259}, {"week": 151, "users": 663852}, {"week": 152, "users": 660042}, {"week": 153, "users": 668556}, {"week": 154, "users": 663336}, {"week": 155, "users": 635952}, {"week": 156, "users": 620743}, {"week": 157, "users": 610897}, {"week": 158, "users": 646458}, {"week": 159, "users": 566823}, {"week": 160, "users": 627389}, {"week": 161, "users": 618417}, {"week": 162, "users": 614948}, {"week": 163, "users": 605267}, {"week": 164, "users": 636328}, {"week": 165, "users": 617399}, {"week": 166, "users": 563753}, {"week": 167, "users": 592527}, {"week": 168, "users": 576825}, {"week": 169, "users": 599565}, {"week": 170, "users": 605634}, {"week": 171, "users": 595677}, {"week": 172, "users": 580939}, {"week": 173, "users": 559524}, {"week": 174, "users": 597757}, {"week": 175, "users": 586342}, {"week": 176, "users": 599674}, {"week": 177, "users": 587920}, {"week": 178, "users": 615823}, {"week": 179, "users": 170167}, {"week": 180, "users": 212923}];
+  REAL_DATA_GA_DAILY.internal.overall = [{"week": 0, "users": 47549}, {"week": 1, "users": 46206}, {"week": 2, "users": 48110}, {"week": 3, "users": 47265}, {"week": 4, "users": 59972}, {"week": 5, "users": 40572}, {"week": 6, "users": 47412}, {"week": 7, "users": 47781}, {"week": 8, "users": 46863}, {"week": 9, "users": 46132}, {"week": 10, "users": 48643}, {"week": 11, "users": 31061}, {"week": 12, "users": 35799}, {"week": 13, "users": 46684}, {"week": 14, "users": 47516}, {"week": 15, "users": 46367}, {"week": 16, "users": 51139}, {"week": 17, "users": 31889}, {"week": 18, "users": 47094}, {"week": 19, "users": 35913}, {"week": 20, "users": 45880}, {"week": 21, "users": 45873}, {"week": 22, "users": 31176}, {"week": 23, "users": 46673}, {"week": 24, "users": 31064}, {"week": 25, "users": 47402}, {"week": 26, "users": 35644}, {"week": 27, "users": 30780}, {"week": 28, "users": 46178}, {"week": 29, "users": 30948}, {"week": 30, "users": 31255}, {"week": 31, "users": 31199}, {"week": 32, "users": 30013}, {"week": 33, "users": 35264}, {"week": 34, "users": 46485}, {"week": 35, "users": 46756}, {"week": 36, "users": 46609}, {"week": 37, "users": 46741}, {"week": 38, "users": 31874}, {"week": 39, "users": 48362}, {"week": 40, "users": 36303}, {"week": 41, "users": 46836}, {"week": 42, "users": 46917}, {"week": 43, "users": 51042}, {"week": 44, "users": 50977}, {"week": 45, "users": 45855}, {"week": 46, "users": 30950}, {"week": 47, "users": 37684}, {"week": 48, "users": 49532}, {"week": 49, "users": 46361}, {"week": 50, "users": 30806}, {"week": 51, "users": 30325}, {"week": 52, "users": 46762}, {"week": 53, "users": 33041}, {"week": 54, "users": 39261}, {"week": 55, "users": 52163}, {"week": 56, "users": 53124}, {"week": 57, "users": 31408}, {"week": 58, "users": 41040}, {"week": 59, "users": 47197}, {"week": 60, "users": 46097}, {"week": 61, "users": 34984}, {"week": 62, "users": 52045}, {"week": 63, "users": 46908}, {"week": 64, "users": 52104}, {"week": 65, "users": 46403}, {"week": 66, "users": 49370}, {"week": 67, "users": 51078}, {"week": 68, "users": 40564}, {"week": 69, "users": 50181}, {"week": 70, "users": 49665}, {"week": 71, "users": 38092}, {"week": 72, "users": 37630}, {"week": 73, "users": 50668}, {"week": 74, "users": 30586}, {"week": 75, "users": 35212}, {"week": 76, "users": 45931}, {"week": 77, "users": 45408}, {"week": 78, "users": 46298}, {"week": 79, "users": 45773}, {"week": 80, "users": 29957}, {"week": 81, "users": 29562}, {"week": 82, "users": 35111}, {"week": 83, "users": 34237}, {"week": 84, "users": 44260}, {"week": 85, "users": 29603}, {"week": 86, "users": 30263}, {"week": 87, "users": 31553}, {"week": 88, "users": 48305}, {"week": 89, "users": 32348}, {"week": 90, "users": 30928}, {"week": 91, "users": 30314}, {"week": 92, "users": 30009}, {"week": 93, "users": 28417}, {"week": 94, "users": 44892}, {"week": 95, "users": 53910}, {"week": 96, "users": 33967}, {"week": 97, "users": 28247}, {"week": 98, "users": 27972}, {"week": 99, "users": 28422}, {"week": 100, "users": 29206}, {"week": 101, "users": 28091}, {"week": 102, "users": 26159}, {"week": 103, "users": 28299}, {"week": 104, "users": 26226}, {"week": 105, "users": 28084}, {"week": 106, "users": 28018}, {"week": 107, "users": 27766}, {"week": 108, "users": 27483}, {"week": 109, "users": 42171}, {"week": 110, "users": 27850}, {"week": 111, "users": 39123}, {"week": 112, "users": 44069}, {"week": 113, "users": 41805}, {"week": 114, "users": 27457}, {"week": 115, "users": 27330}, {"week": 116, "users": 26554}, {"week": 117, "users": 34409}, {"week": 118, "users": 52642}, {"week": 119, "users": 37633}, {"week": 120, "users": 41397}, {"week": 121, "users": 54319}, {"week": 122, "users": 29252}, {"week": 123, "users": 27371}, {"week": 124, "users": 36140}, {"week": 125, "users": 28446}, {"week": 126, "users": 26630}, {"week": 127, "users": 27105}, {"week": 128, "users": 26314}, {"week": 129, "users": 27959}, {"week": 130, "users": 25601}, {"week": 131, "users": 32694}, {"week": 132, "users": 27654}, {"week": 133, "users": 25938}, {"week": 134, "users": 28149}, {"week": 135, "users": 33469}, {"week": 136, "users": 32513}, {"week": 137, "users": 29154}, {"week": 138, "users": 25048}, {"week": 139, "users": 23369}, {"week": 140, "users": 25313}, {"week": 141, "users": 25503}, {"week": 142, "users": 25657}, {"week": 143, "users": 53767}, {"week": 144, "users": 46662}, {"week": 145, "users": 33224}, {"week": 146, "users": 27701}, {"week": 147, "users": 28616}, {"week": 148, "users": 52751}, {"week": 149, "users": 34881}, {"week": 150, "users": 45762}, {"week": 151, "users": 33303}, {"week": 152, "users": 31067}, {"week": 153, "users": 29370}, {"week": 154, "users": 26469}, {"week": 155, "users": 25958}, {"week": 156, "users": 27862}, {"week": 157, "users": 53016}, {"week": 158, "users": 49108}, {"week": 159, "users": 32548}, {"week": 160, "users": 28648}, {"week": 161, "users": 28549}, {"week": 162, "users": 27875}, {"week": 163, "users": 25670}, {"week": 164, "users": 26182}, {"week": 165, "users": 44989}, {"week": 166, "users": 31582}, {"week": 167, "users": 26653}, {"week": 168, "users": 23933}, {"week": 169, "users": 24956}, {"week": 170, "users": 27330}, {"week": 171, "users": 52346}, {"week": 172, "users": 31799}, {"week": 173, "users": 32104}, {"week": 174, "users": 31368}, {"week": 175, "users": 30699}, {"week": 176, "users": 51712}, {"week": 177, "users": 31895}, {"week": 178, "users": 31807}, {"week": 179, "users": 10845}, {"week": 180, "users": 9757}];
+  DATA.gsc = REAL_DATA_GSC;
+  DATA.ga.overall  = REAL_DATA_GA_DAILY.overall;
+  DATA.ga.organic  = REAL_DATA_GA_DAILY.organic;
+  DATA.ga.internal = REAL_DATA_GA_DAILY.internal;
+  DATA.biz = null;
+  ['gsc','ga-overall-daily','ga-organic-daily','ga-internal-daily'].forEach(type => {
+    const z = document.getElementById('zone-' + type);
+    const s = document.getElementById('status-' + type);
+    if (z) z.classList.add('loaded');
+    if (s) { s.textContent = 'âœ“ Preloaded'; s.className = 'upload-status ok'; }
+  });
+  initDatePickers();
+  refreshDashboard();
+  initDayComparisonPicker();
+}
+// ============ STATE ============
+const DATA = {
+  gsc: null,
+  ga: { overall: null, organic: null, internal: null },
+  biz: null
+};
+let notableChanges = JSON.parse(localStorage.getItem('notable_changes') || '[]');
+let charts = {};
+const granularity = 'daily';
+
+// ============ KPI CONFIG ============
+const KPI_COLORS = {
+  impressions: '#6366f1', clicks: '#22d3ee', ctr: '#f59e0b',
+  position: '#f43f5e', users: '#10b981', unique_senders: '#a78bfa', requirements: '#f472b6'
+};
+const KPI_LABELS = {
+  impressions: 'Impressions', clicks: 'Clicks', ctr: 'CTR (%)',
+  position: 'Avg Position', users: 'Users', unique_senders: 'Unique Senders', requirements: 'Requirements'
+};
+
+// ============ THEME ============
+function toggleTheme() {
+  const light = document.body.classList.toggle('light');
+  document.getElementById('theme-btn').textContent = light ? 'ðŸŒ™ Dark' : 'â˜€ Light';
+  Object.values(charts).forEach(c => { if (c) { c.options.plugins.legend.labels.color = getComputedStyle(document.body).getPropertyValue('--text').trim(); c.update(); } });
+}
+
+// ============ TABS ============
+function switchTab(name, btn) {
+  document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-' + name).classList.add('active');
+  if (name === 'insights') generateInsights();
+}
+
+// ============ UPLOAD TOGGLE ============
+function toggleUpload() {
+  const b = document.getElementById('upload-body');
+  b.style.display = b.style.display === 'none' ? '' : 'none';
+}
+
+// ============ FILE HANDLING ============
+function handleFile(type, input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const data = new Uint8Array(e.target.result);
+      const wb = XLSX.read(data, { type: 'array' });
+      processWorkbook(type, wb, file.name);
+    } catch (err) {
+      const s = document.getElementById('status-' + type);
+      if (s) { s.textContent = 'âŒ ' + err.message; s.className = 'upload-status err'; }
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function processWorkbook(type, workbook, filename) {
+  try {
+    if (type === 'gsc') parseGSC(workbook);
+    else if (type.startsWith('ga-')) {
+      const parts = type.replace('ga-', '').split('-');
+      const gran = parts.pop();
+      const journey = parts.join('-');
+      parseGA(workbook, journey, gran);
+    } else if (type === 'biz') parseBiz(workbook);
+    const z = document.getElementById('zone-' + type);
+    const s = document.getElementById('status-' + type);
+    if (z) z.classList.add('loaded');
+    if (s) { s.textContent = 'âœ“ ' + filename; s.className = 'upload-status ok'; }
+    refreshDashboard();
+  } catch (err) {
+    const s = document.getElementById('status-' + type);
+    if (s) { s.textContent = 'âŒ ' + err.message; s.className = 'upload-status err'; }
+  }
+}
+
+function parseGSC(workbook) {
+  const sheet = workbook.Sheets[workbook.SheetNames[0]];
+  const json = XLSX.utils.sheet_to_json(sheet);
+  const daily = json.map(row => {
+    let dateVal = row['Date'] || row['date'];
+    if (typeof dateVal === 'number') dateVal = new Date((dateVal - 25569) * 86400000).toISOString().split('T')[0];
+    let ctr = row['CTR'] || row['ctr'] || 0;
+    if (typeof ctr === 'string') ctr = parseFloat(ctr.replace('%', ''));
+    if (ctr <= 1) ctr = ctr * 100;
+    return { date: dateVal, clicks: Number(row['Clicks']||row['clicks']||0), impressions: Number(row['Impressions']||row['impressions']||0), ctr, position: Number(row['Position']||row['position']||row['Avg Position']||0) };
+  }).filter(r => r.date && r.date.match(/\d{4}-\d{2}-\d{2}/));
+  daily.sort((a, b) => a.date.localeCompare(b.date));
+  DATA.gsc = daily;
+}
+
+function parseGA(workbook, journey, gran) {
+  const sheet = workbook.Sheets[workbook.SheetNames[0]];
+  const raw = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+  const pageTypes = ['pdp', 'mcat', 'company', 'home'];
+  const result = {};
+  let weekHeaders = null;
+  for (let i = 0; i < raw.length; i++) {
+    const row = raw[i];
+    if (!row || !row.length) continue;
+    const firstCell = String(row[0]||'').trim().toLowerCase();
+    if (firstCell === 'nth week') { weekHeaders = row.slice(1).map(v => { const n = parseInt(v); return isNaN(n) ? null : n; }); continue; }
+    if (firstCell === 'segment') continue;
+    if (pageTypes.includes(firstCell) && weekHeaders) {
+      const values = row.slice(1);
+      result[firstCell] = [];
+      for (let j = 0; j < weekHeaders.length; j++) {
+        if (weekHeaders[j] !== null) {
+          let val = values[j];
+          if (typeof val === 'string') val = parseFloat(val.replace(/,/g, ''));
+          result[firstCell].push({ week: weekHeaders[j], users: Number(val)||0 });
+        }
+      }
+    }
+  }
+  DATA.ga[journey] = result;
+}
+
+function parseBiz(workbook) {
+  const sheet = workbook.Sheets[workbook.SheetNames[0]];
+  const json = XLSX.utils.sheet_to_json(sheet);
+  DATA.biz = json.map(row => ({
+    week: row['Week']||row['week']||row['Nth week'],
+    page: (row['Page_Type']||row['page_type']||'overall').toLowerCase(),
+    journey: (row['Journey_Type']||row['journey_type']||'overall').toLowerCase(),
+    unique_senders: Number(row['Unique_Senders']||row['unique_senders']||0),
+    requirements: Number(row['Requirements']||row['requirements']||0)
+  }));
+}
+
+// ============ DATE RANGE ============
+function _updatePresetBtns(activeKey) {
+  ['7','30','90','180','all'].forEach(k => {
+    const b = document.getElementById('qbtn-' + k);
+    if (b) b.classList.toggle('active', String(k) === String(activeKey));
+  });
+}
+
+function onCustomDateChange() { _updatePresetBtns(null); refreshDashboard(); }
+
+function quickRange(val) {
+  if (!DATA.gsc||!DATA.gsc.length) return;
+  const allDates = DATA.gsc.map(d => d.date);
+  const minDate = allDates[0], maxDate = allDates[allDates.length-1];
+  let fromDate, toDate = maxDate;
+  if (val === 'all') { fromDate = minDate; }
+  else {
+    const dt = new Date(toDate);
+    dt.setDate(dt.getDate() - parseInt(val) + 1);
+    fromDate = dt.toISOString().split('T')[0];
+    if (fromDate < minDate) fromDate = minDate;
+  }
+  document.getElementById('f-date-from').value = fromDate;
+  document.getElementById('f-date-to').value = toDate;
+  _updatePresetBtns(val);
+  refreshDashboard();
+}
+
+function initDatePickers() {
+  if (!DATA.gsc||!DATA.gsc.length) return;
+  const allDates = DATA.gsc.map(d => d.date);
+  const maxDate = allDates[allDates.length-1];
+  const fromDt = new Date(maxDate);
+  fromDt.setDate(fromDt.getDate() - 89);
+  const fromDate = fromDt.toISOString().split('T')[0];
+  document.getElementById('f-date-from').min = allDates[0];
+  document.getElementById('f-date-from').max = maxDate;
+  document.getElementById('f-date-to').min = allDates[0];
+  document.getElementById('f-date-to').max = maxDate;
+  document.getElementById('f-date-from').value = fromDate < allDates[0] ? allDates[0] : fromDate;
+  document.getElementById('f-date-to').value = maxDate;
+  _updatePresetBtns(90);
+}
+
+function getDateRange() {
+  if (!DATA.gsc||!DATA.gsc.length) return { fromDate: null, toDate: null };
+  const allDates = DATA.gsc.map(d => d.date);
+  const minDate = allDates[0], maxDate = allDates[allDates.length-1];
+  const fromRaw = document.getElementById('f-date-from').value;
+  const toRaw   = document.getElementById('f-date-to').value;
+  if (!fromRaw||!toRaw) return { fromDate: minDate, toDate: maxDate };
+  const fromDate = fromRaw < toRaw ? fromRaw : toRaw;
+  const toDate   = fromRaw < toRaw ? toRaw : fromRaw;
+  return { fromDate: fromDate < minDate ? minDate : fromDate, toDate: toDate > maxDate ? maxDate : toDate };
+}
+
+// ============ FILTERED DATA ============
+function getFilteredData() {
+  const journey = document.getElementById('f-journey').value;
+  const page    = document.getElementById('f-page').value;
+  const kpis = ['f-kpi1','f-kpi2','f-kpi3','f-kpi4'].map(id => document.getElementById(id).value).filter(Boolean);
+  const { fromDate, toDate } = getDateRange();
+  const gaData = DATA.ga[journey] || DATA.ga.overall;
+  const gscData = DATA.gsc || [];
+  const filteredGSC = gscData.filter(d => (!fromDate||!toDate) || (d.date >= fromDate && d.date <= toDate));
+  const labels = filteredGSC.map(d => { const dt = new Date(d.date); return dt.toLocaleDateString('en-US', { month:'short', day:'numeric' }); });
+  const series = {};
+  kpis.forEach(k => { series[k] = []; });
+  const gscStartDate = DATA.gsc?.[0]?.date;
+  filteredGSC.forEach((dp) => {
+    kpis.forEach(kpi => {
+      let val = null;
+      if (['clicks','impressions','ctr','position'].includes(kpi)) val = dp[kpi];
+      if (kpi === 'users' && gaData && gscStartDate) {
+        const dayOffset = Math.round((new Date(dp.date) - new Date(gscStartDate)) / 86400000);
+        const pageKey = page === 'overall' ? 'overall' : page;
+        const entry = gaData[pageKey]?.find(e => e.week === dayOffset);
+        if (entry) val = entry.users;
+      }
+      if (['unique_senders','requirements'].includes(kpi) && DATA.biz && gscStartDate) {
+        const dayOffset = Math.round((new Date(dp.date) - new Date(gscStartDate)) / 86400000);
+        const weekIdx = Math.floor(dayOffset / 7);
+        const match = DATA.biz.find(b => b.week === weekIdx && (page==='overall'||b.page===page) && (journey==='overall'||b.journey===journey));
+        if (match) val = match[kpi];
+      }
+      series[kpi].push(val);
+    });
+  });
+  return { labels, series, kpis, filteredGSC, fromDate, toDate };
+}
+
+// ============ ROLLING AVG ============
+function rollingAvg(arr, w) {
+  return arr.map((v, i) => {
+    if (i < w - 1) return null;
+    let sum = 0, cnt = 0;
+    for (let j = i - w + 1; j <= i; j++) { if (arr[j]!=null) { sum+=arr[j]; cnt++; } }
+    return cnt > 0 ? sum/cnt : null;
+  });
+}
+
+// ============ CHART HELPERS ============
+function getGridColor() { return getComputedStyle(document.body).getPropertyValue('--border').trim(); }
+function getTickColor() { return getComputedStyle(document.body).getPropertyValue('--text3').trim(); }
+function getTextColor() { return getComputedStyle(document.body).getPropertyValue('--text').trim(); }
+function getCardColor() { return getComputedStyle(document.body).getPropertyValue('--card').trim(); }
+
+function fmtTick(v) {
+  if (v >= 1e6) return (v/1e6).toFixed(1)+'M';
+  if (v >= 1e3) return (v/1e3).toFixed(0)+'K';
+  return v;
+}
+function fmtVal(kpi, v) {
+  if (v==null||isNaN(v)) return 'â€”';
+  if (kpi==='ctr') return v.toFixed(2)+'%';
+  if (kpi==='position') return v.toFixed(2);
+  if (Math.abs(v)>=1e6) return (v/1e6).toFixed(2)+'M';
+  if (Math.abs(v)>=1e3) return (v/1e3).toFixed(1)+'K';
+  return Number(v).toLocaleString('en-IN');
+}
+
+// ============ REFRESH ============
+function refreshDashboard() {
+  if (!DATA.gsc&&!DATA.ga.overall&&!DATA.ga.organic&&!DATA.ga.internal) return;
+  const { labels, series, kpis, filteredGSC, fromDate, toDate } = getFilteredData();
+  const ri = document.getElementById('range-info');
+  if (ri) ri.innerHTML = `Showing <strong>${labels.length} days</strong> &nbsp;Â·&nbsp; ${fromDate||'â€”'} â†’ ${toDate||'â€”'}`;
+  renderKPICards(series, kpis);
+  renderTrendChart(labels, series, kpis);
+  renderDataTable();
+  renderPeriodChart(labels, series, kpis);
+  renderBarChart(labels, series, kpis);
+  renderDayComparison();
+}
+
+// ============ KPI CARDS ============
+function renderKPICards(series, kpis) {
+  const container = document.getElementById('kpi-cards');
+  container.innerHTML = '';
+  kpis.forEach(kpi => {
+    const vals = (series[kpi]||[]).filter(v => v!=null);
+    if (!vals.length) return;
+    const latest = vals[vals.length-1];
+    const prev   = vals.length > 1 ? vals[vals.length-2] : latest;
+    const chg    = prev !== 0 ? ((latest-prev)/prev*100) : 0;
+    const color  = KPI_COLORS[kpi]||'#6366f1';
+    let fv = latest;
+    if (kpi==='ctr') fv = latest.toFixed(2)+'%';
+    else if (kpi==='position') fv = latest.toFixed(1);
+    else fv = latest.toLocaleString('en-IN');
+    const card = document.createElement('div');
+    card.className = 'kpi-card';
+    card.style.setProperty('--kpi-color', color);
+    const arrow = chg >= 0 ? 'â†‘' : 'â†“';
+    card.innerHTML = `
+      <div class="kpi-label">${KPI_LABELS[kpi]||kpi}</div>
+      <div class="kpi-value">${fv}</div>
+      <span class="kpi-delta ${chg>=0?'up':'down'}">${arrow} ${Math.abs(chg).toFixed(1)}%</span>
+      <div class="kpi-meta">vs previous day</div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+// ============ TREND CHART ============
+function renderTrendChart(labels, series, kpis) {
+  if (charts.trend) charts.trend.destroy();
+  const ctx = document.getElementById('chart-trend').getContext('2d');
+  const datasets = [];
+  const gridColor = getGridColor();
+  const tickColor = getTickColor();
+
+  kpis.forEach((kpi, idx) => {
+    const color = KPI_COLORS[kpi] || '#6366f1';
+
+    // Gradient fill for first series only
+    const gradient = ctx.createLinearGradient(0, 0, 0, 390);
+    gradient.addColorStop(0,   color + '45');
+    gradient.addColorStop(0.5, color + '18');
+    gradient.addColorStop(1,   color + '00');
+
+    datasets.push({
+      label: KPI_LABELS[kpi],
+      data: series[kpi],
+      borderColor: color,
+      backgroundColor: idx === 0 ? gradient : 'transparent',
+      borderWidth: idx === 0 ? 2 : 1.5,
+      pointRadius: 0,
+      pointHoverRadius: 5,
+      pointHoverBackgroundColor: color,
+      pointHoverBorderColor: '#fff',
+      pointHoverBorderWidth: 2,
+      tension: 0.4,
+      yAxisID: idx < 2 ? 'y' : 'y1',
+      fill: idx === 0,
+      order: kpis.length - idx
+    });
+
+    const rolling = rollingAvg(series[kpi], 7);
+    datasets.push({
+      label: KPI_LABELS[kpi] + ' (7D Avg)',
+      data: rolling,
+      borderColor: color,
+      backgroundColor: 'transparent',
+      borderWidth: 2,
+      borderDash: [5, 4],
+      pointRadius: 0,
+      tension: 0.5,
+      yAxisID: idx < 2 ? 'y' : 'y1',
+      fill: false,
+      order: kpis.length - idx + 10
+    });
+  });
+
+  charts.trend = new Chart(ctx, {
+    type: 'line',
+    data: { labels, datasets },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: { duration: 900, easing: 'easeInOutQuart' },
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: {
+          labels: {
+            color: getTextColor(), usePointStyle: true, pointStyleWidth: 10,
+            padding: 20, font: { size: 11.5, family: 'Inter', weight: '500' }
+          }
+        },
+        tooltip: {
+          backgroundColor: '#0f1420',
+          borderColor: 'rgba(99,102,241,0.3)',
+          borderWidth: 1,
+          titleColor: '#edf0fb',
+          bodyColor: '#8a97b8',
+          padding: 13,
+          cornerRadius: 10,
+          titleFont: { size: 12, weight: '600', family: 'Inter' },
+          bodyFont: { size: 11.5, family: 'Inter' },
+          callbacks: {
+            label: function(ctx) {
+              let val = ctx.parsed.y;
+              if (ctx.dataset.label.includes('CTR')) val = val != null ? val.toFixed(2) + '%' : 'â€”';
+              else if (ctx.dataset.label.includes('Position')) val = val != null ? val.toFixed(1) : 'â€”';
+              else val = val >= 1e6 ? (val/1e6).toFixed(2)+'M' : val >= 1e3 ? (val/1e3).toFixed(1)+'K' : val != null ? val.toLocaleString('en-IN') : 'â€”';
+              return '  ' + ctx.dataset.label + ': ' + val;
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          ticks: { color: tickColor, font: { size: 10.5, family: 'Inter' }, maxRotation: 45, maxTicksLimit: 20 },
+          grid: { color: gridColor, lineWidth: 0.5 },
+          border: { color: gridColor }
+        },
+        y: {
+          position: 'left',
+          ticks: { color: tickColor, font: { size: 11 }, callback: fmtTick, padding: 8 },
+          grid: { color: gridColor, lineWidth: 0.5 },
+          border: { color: 'transparent', dash: [4, 4] }
+        },
+        y1: {
+          position: 'right',
+          display: kpis.length > 2,
+          ticks: { color: tickColor, font: { size: 11 }, callback: fmtTick },
+          grid: { display: false },
+          border: { color: gridColor }
+        }
+      }
+    }
+  });
+}
+// ============ DATA TABLE ============
+function renderDataTable() {
+  const container = document.getElementById('data-table-container');
+  if (!container) return;
+  const { labels, series, kpis } = getFilteredData();
+  if (!labels||!labels.length) { container.innerHTML = '<div class="empty-state"><div class="icon">ðŸ“‹</div><div>No data in selected range.</div></div>'; return; }
+
+  const colsRaw = document.getElementById('tbl-cols-select')?.value || '30';
+  const maxCols = colsRaw==='all' ? labels.length : Math.min(parseInt(colsRaw), labels.length);
+  const sliceStart = labels.length - maxCols;
+  const slicedLabels = labels.slice(sliceStart);
+  const n = slicedLabels.length;
+
+  function deltaPill(val, isPercent) {
+    if (val==null||isNaN(val)) return '<span class="pill pill-neu">â€”</span>';
+    const sign = val>0?'+':'';
+    const cls = val>0?'pill-up':val<0?'pill-down':'pill-neu';
+    const icon = val>0?'â†‘':val<0?'â†“':'Â·';
+    const display = isPercent ? `${sign}${val.toFixed(1)}%` : `${sign}${Math.round(val).toLocaleString('en-IN')}`;
+    return `<span class="pill ${cls}">${icon} ${display}</span>`;
+  }
+
+  let html = '<table class="data-table"><thead><tr>';
+  html += '<th class="col-label">Metric</th>';
+  slicedLabels.forEach((lbl, ci) => {
+    const isLast = ci === n - 1;
+    html += `<th style="${isLast ? 'color:var(--cyan);' : ''}">${lbl}${isLast ? ' â˜…' : ''}</th>`;
+  });
+  html += '</tr></thead><tbody>';
+
+  kpis.forEach(kpi => {
+    const color = KPI_COLORS[kpi]||'#6366f1';
+    const label = KPI_LABELS[kpi]||kpi;
+    const fullSeries = series[kpi]||[];
+    const slicedVals = fullSeries.slice(sliceStart);
+
+    html += `<tr class="tbl-section-hdr"><td colspan="${n+1}" style="border-left:3px solid ${color};">â–¸ ${label}</td></tr>`;
+
+    // Absolute values
+    html += `<tr><td class="row-label">Value</td>`;
+    slicedVals.forEach((v, ci) => {
+      const isLast = ci===n-1;
+      html += `<td class="${isLast?'val-latest':'val'}">${fmtVal(kpi, v)}</td>`;
+    });
+    html += '</tr>';
+
+    // Day delta
+    html += `<tr><td class="row-label">Î” Prev Day</td>`;
+    slicedVals.forEach((v, ci) => {
+      const absIdx = sliceStart + ci;
+      const prevV  = absIdx > 0 ? fullSeries[absIdx-1] : null;
+      let dHtml = '<span style="color:var(--text3)">â€”</span>';
+      if (v!=null && prevV!=null) dHtml = deltaPill(v-prevV, false);
+      const isLast = ci===n-1;
+      html += `<td class="${isLast?'val-latest':'val'}">${fmtVal(kpi,v)}<br>${dHtml}</td>`;
+    });
+    html += '</tr>';
+
+    // % vs 7d avg
+    html += `<tr><td class="row-label">% vs 7D Avg</td>`;
+    slicedVals.forEach((v, ci) => {
+      const absIdx = sliceStart + ci;
+      const benchSlice = fullSeries.slice(Math.max(0,absIdx-7),absIdx).filter(x=>x!=null);
+      const avg7 = benchSlice.length ? benchSlice.reduce((a,b)=>a+b,0)/benchSlice.length : null;
+      let pHtml = '<span style="color:var(--text3)">â€”</span>';
+      if (v!=null && avg7!=null && avg7!==0) pHtml = deltaPill(((v-avg7)/avg7)*100, true);
+      const avgFmt = avg7!=null ? `<span style="font-size:9.5px;color:var(--text3)">avg: ${fmtVal(kpi,avg7)}</span>` : '';
+      const isLast = ci===n-1;
+      html += `<td class="${isLast?'val-latest':'val'}" style="line-height:1.8">${pHtml}<br>${avgFmt}</td>`;
+    });
+    html += '</tr>';
+  });
+
+  html += '</tbody></table>';
+  container.innerHTML = html;
+}
+
+// ============ DAY COMPARISON ============
+function renderDayComparison() {
+  const container = document.getElementById('day-comparison-container');
+  if (!container) return;
+  const selDate = document.getElementById('dcmp-date')?.value;
+  if (!selDate) { container.innerHTML = '<div class="dcmp-empty">ðŸ“… Select a date above to see week-over-week comparison.</div>'; return; }
+
+  const weeksBack  = parseInt(document.getElementById('dcmp-weeks')?.value||'7');
+  const kpiFilter  = document.getElementById('dcmp-kpi-filter')?.value||'active';
+  const allGSC     = DATA.gsc||[];
+  if (!allGSC.length) { container.innerHTML = '<div class="dcmp-empty">âš  No data loaded yet.</div>'; return; }
+
+  const gscMap = {};
+  allGSC.forEach(r => { gscMap[r.date] = r; });
+
+  const journey = document.getElementById('f-journey')?.value||'overall';
+  const page    = document.getElementById('f-page')?.value||'pdp';
+  const gaJourney = DATA.ga[journey]||DATA.ga.overall||{};
+  const pageKey   = page==='overall'?'overall':page;
+  const gaData    = gaJourney[pageKey]||[];
+  const gscStart  = allGSC[0]?.date;
+
+  const gaMap = {};
+  if (gscStart && gaData.length) {
+    gaData.forEach(e => {
+      const dt = new Date(gscStart); dt.setDate(dt.getDate()+e.week);
+      gaMap[dt.toISOString().split('T')[0]] = e.users;
+    });
+  }
+
+  const ALL_KPIS = ['clicks','impressions','ctr','position','users','unique_senders','requirements'];
+  let kpisToShow = kpiFilter==='active'
+    ? ['f-kpi1','f-kpi2','f-kpi3','f-kpi4'].map(id=>document.getElementById(id)?.value).filter(Boolean)
+    : ALL_KPIS;
+  if (!kpisToShow.length) kpisToShow = ['clicks'];
+
+  function getVal(kpi, dateStr) {
+    if (['clicks','impressions','ctr','position'].includes(kpi)) return gscMap[dateStr]?.[kpi]??null;
+    if (kpi==='users') return gaMap[dateStr]??null;
+    if (['unique_senders','requirements'].includes(kpi) && DATA.biz && gscStart) {
+      const off  = Math.round((new Date(dateStr)-new Date(gscStart))/86400000);
+      const wk   = Math.floor(off/7);
+      const b    = DATA.biz?.find(x => x.week===wk && (page==='overall'||x.page===page) && (journey==='overall'||x.journey===journey));
+      return b?.[kpi]??null;
+    }
+    return null;
+  }
+
+  function wowBadge(curr, prev) {
+    if (curr==null||prev==null||prev===0) return '';
+    const pct = ((curr-prev)/Math.abs(prev))*100;
+    const sign = pct>0?'+':'';
+    const cls  = pct>0?'dcmp-up':pct<0?'dcmp-down':'dcmp-neu';
+    const icon = pct>0?'â†‘':pct<0?'â†“':'Â·';
+    return `<span class="dcmp-badge ${cls}">${icon} ${sign}${pct.toFixed(1)}%</span>`;
+  }
+
+  const selDt  = new Date(selDate);
+  const dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const dayName  = dayNames[selDt.getDay()];
+  const cols     = [];
+  for (let w = 0; w <= weeksBack; w++) {
+    const dt = new Date(selDt); dt.setDate(dt.getDate() - w*7);
+    const ds = dt.toISOString().split('T')[0];
+    const shortDate = dt.toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'2-digit' });
+    cols.push({ date: ds, shortDate, weeksAgo: w });
+  }
+
+  const minDate = allGSC[0]?.date, maxDate = allGSC[allGSC.length-1]?.date;
+  if (selDate > maxDate || selDate < minDate) {
+    container.innerHTML = `<div class="dcmp-empty">âš  Selected date <strong>${selDate}</strong> is outside data range (${minDate} â†’ ${maxDate}).</div>`;
+    return;
+  }
+
+  let html = `<div style="margin-bottom:10px;font-size:12px;color:var(--text2)">
+    Comparing <strong style="color:var(--cyan)">${selDate}</strong> (${dayName}) vs same weekday for <strong>${weeksBack}</strong> prior weeks.
+    &nbsp;Â·&nbsp; Range: <span style="color:var(--text)">${minDate} â†’ ${maxDate}</span>
+  </div>`;
+
+  html += '<table class="dcmp-table"><thead><tr><th class="col-kpi">KPI</th>';
+  cols.forEach(col => {
+    const isSel = col.weeksAgo===0;
+    const noData = !gscMap[col.date] ? '<br><span style="color:var(--red);font-size:9px">no data</span>' : '';
+    html += `<th style="${isSel?'color:var(--cyan);border-bottom:2px solid var(--cyan);':''}">
+      ${col.shortDate}${noData}
+      <span class="dcmp-week-label">${isSel?'â˜… Selected':`${col.weeksAgo}W ago`}</span>
+    </th>`;
+  });
+  html += '</tr></thead><tbody>';
+
+  kpisToShow.forEach(kpi => {
+    const color = KPI_COLORS[kpi]||'#6366f1';
+    const label = KPI_LABELS[kpi]||kpi;
+    html += `<tr class="dcmp-section-hdr"><td colspan="${cols.length+1}" style="border-left:3px solid ${color}">â–¸ ${label}</td></tr>`;
+    html += '<tr>';
+    html += `<td class="col-kpi">Value</td>`;
+    cols.forEach((col, ci) => {
+      const isSel = col.weeksAgo===0;
+      const v     = getVal(kpi, col.date);
+      const prevV = cols[ci+1] ? getVal(kpi, cols[ci+1].date) : null;
+      const badge = ci < cols.length-1 ? wowBadge(v, prevV) : '';
+      html += `<td class="${isSel?'dcmp-selected':''}">
+        <span class="dcmp-val">${fmtVal(kpi,v)}</span>
+        ${badge?`<br>${badge}`:''}
+      </td>`;
+    });
+    html += '</tr>';
+  });
+
+  html += '</tbody></table>';
+  container.innerHTML = html;
+}
+
+function initDayComparisonPicker() {
+  if (!DATA.gsc||!DATA.gsc.length) return;
+  const el = document.getElementById('dcmp-date');
+  if (!el||el.value) return;
+  const allDates = DATA.gsc.map(d => d.date);
+  el.min = allDates[0]; el.max = allDates[allDates.length-1];
+  el.value = allDates[allDates.length-1];
+  renderDayComparison();
+}
+
+// ============ PERIOD CHART ============
+function renderPeriodChart(labels, series, kpis) {
+  if (charts.wow) charts.wow.destroy();
+  const primaryKPI = kpis[0];
+  const data = series[primaryKPI] || [];
+  const lastN = Math.min(14, data.length);
+  const rLabels = labels.slice(-lastN);
+  const rData   = data.slice(-lastN);
+  const changes  = rData.map((v,i) => i===0||!v||!rData[i-1] ? 0 : (v-rData[i-1])/rData[i-1]*100);
+  const ctx = document.getElementById('chart-wow').getContext('2d');
+
+  const bgColors = changes.map(v => {
+    const g = ctx.createLinearGradient(0, 0, 0, 320);
+    if (v >= 0) { g.addColorStop(0, 'rgba(16,185,129,0.85)'); g.addColorStop(1, 'rgba(16,185,129,0.3)'); }
+    else        { g.addColorStop(0, 'rgba(244,63,94,0.85)');  g.addColorStop(1, 'rgba(244,63,94,0.3)'); }
+    return g;
+  });
+  const borderColors = changes.map(v => v >= 0 ? '#10b981' : '#f43f5e');
+
+  charts.wow = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: rLabels,
+      datasets: [{
+        label: KPI_LABELS[primaryKPI] + ' DoD %',
+        data: changes,
+        backgroundColor: bgColors,
+        borderColor: borderColors,
+        borderWidth: 1,
+        borderRadius: 7,
+        borderSkipped: false
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      animation: { duration: 700, easing: 'easeOutQuart' },
+      plugins: {
+        legend: { labels: { color: getTextColor(), font: { size: 11, family: 'Inter' } } },
+        tooltip: {
+          backgroundColor: '#0f1420', borderColor: 'rgba(99,102,241,0.25)', borderWidth: 1,
+          cornerRadius: 9, titleColor: '#edf0fb', bodyColor: '#8a97b8', padding: 11,
+          callbacks: { label: ctx => '  ' + ctx.parsed.y.toFixed(2) + '% DoD' }
+        }
+      },
+      scales: {
+        x: { ticks: { color: getTickColor(), font: { size: 10 }, maxRotation: 45 }, grid: { color: getGridColor(), lineWidth: 0.5 }, border: { color: getGridColor() } },
+        y: { ticks: { color: getTickColor(), callback: v => v.toFixed(1)+'%', padding: 8 }, grid: { color: getGridColor(), lineWidth: 0.5 }, border: { dash: [4,4], color: 'transparent' } }
+      }
+    }
+  });
+}
+// ============ BAR CHART ============
+function renderBarChart(labels, series, kpis) {
+  if (charts.bar) charts.bar.destroy();
+  const lastN = 7;
+  const barLabels = labels.slice(-lastN);
+  const ctx = document.getElementById('chart-bar').getContext('2d');
+
+  const datasets = kpis.map(kpi => {
+    const color = KPI_COLORS[kpi] || '#6366f1';
+    const grad = ctx.createLinearGradient(0, 0, 0, 320);
+    grad.addColorStop(0, color + 'cc');
+    grad.addColorStop(1, color + '55');
+    return {
+      label: KPI_LABELS[kpi],
+      data: (series[kpi] || []).slice(-lastN),
+      backgroundColor: grad,
+      borderColor: color,
+      borderWidth: 1.5,
+      borderRadius: 7,
+      borderSkipped: false
+    };
+  });
+
+  charts.bar = new Chart(ctx, {
+    type: 'bar',
+    data: { labels: barLabels, datasets },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      animation: { duration: 700, easing: 'easeOutQuart' },
+      plugins: {
+        legend: { labels: { color: getTextColor(), usePointStyle: true, font: { size: 11, family: 'Inter' } } },
+        tooltip: {
+          backgroundColor: '#0f1420', borderColor: 'rgba(99,102,241,0.25)', borderWidth: 1,
+          cornerRadius: 9, titleColor: '#edf0fb', bodyColor: '#8a97b8', padding: 11,
+          callbacks: {
+            label: ctx => {
+              const v = ctx.parsed.y;
+              return '  ' + ctx.dataset.label + ': ' + (v >= 1e6 ? (v/1e6).toFixed(2)+'M' : v >= 1e3 ? (v/1e3).toFixed(1)+'K' : v != null ? v.toLocaleString('en-IN') : 'â€”');
+            }
+          }
+        }
+      },
+      scales: {
+        x: { ticks: { color: getTickColor(), font: { size: 10.5 } }, grid: { color: getGridColor(), lineWidth: 0.5 }, border: { color: getGridColor() } },
+        y: { ticks: { color: getTickColor(), callback: fmtTick, padding: 8 }, grid: { color: getGridColor(), lineWidth: 0.5 }, border: { dash: [4,4], color: 'transparent' } }
+      }
+    }
+  });
+}
+// ============ COPY CHART ============
+function copyChart(canvasId, btn) {
+  const canvas = document.getElementById(canvasId);
+  canvas.toBlob(blob => {
+    const item = new ClipboardItem({ 'image/png': blob });
+    navigator.clipboard.write([item]).then(() => {
+      btn.textContent = 'âœ“ Copied!';
+      btn.classList.add('copied');
+      showToast('Chart copied!');
+      setTimeout(() => { btn.textContent = 'âŽ˜ Copy'; btn.classList.remove('copied'); }, 2000);
+    });
+  });
+}
+
+// ============ TOAST ============
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = 'âœ“ ' + msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ============ NOTABLE CHANGES ============
+function renderChanges() {
+  const tbody = document.getElementById('changes-body');
+  const empty = document.getElementById('changes-empty');
+  tbody.innerHTML = '';
+  if (!notableChanges.length) { empty.style.display='block'; return; }
+  empty.style.display = 'none';
+  notableChanges.sort((a,b) => b.date.localeCompare(a.date)).forEach((ch, i) => {
+    const impBadge = ch.impact==='Negative'?'badge-red':ch.impact==='Positive'?'badge-green':'badge-amber';
+    const typBadge = ch.type==='Algorithm Update'?'badge-cyan':ch.type==='Bug'?'badge-red':'badge-amber';
+    tbody.innerHTML += `<tr>
+      <td>${ch.date}</td>
+      <td><span class="badge ${typBadge}">${ch.type}</span></td>
+      <td>${ch.description}</td>
+      <td><span class="badge ${impBadge}">${ch.impact}</span></td>
+      <td>${ch.kpis}</td>
+      <td>${ch.pages}</td>
+      <td><button class="btn btn-danger btn-sm" onclick="deleteChange(${i})">âœ•</button></td>
+    </tr>`;
+  });
+}
+
+let editingIdx = -1;
+function openChangeModal(idx) {
+  editingIdx = idx!==undefined ? idx : -1;
+  document.getElementById('modal-title').textContent = editingIdx>=0 ? 'Edit Notable Change' : 'Add Notable Change';
+  if (editingIdx >= 0) {
+    const ch = notableChanges[editingIdx];
+    ['ch-date','ch-type','ch-desc','ch-impact','ch-kpis','ch-pages'].forEach(id => {
+      const key = id.replace('ch-','');
+      const el = document.getElementById(id);
+      if (el) el.value = ch[key==='kpis'?'kpis':key==='pages'?'pages':key==='desc'?'description':key] || '';
+    });
+  } else {
+    ['ch-date','ch-desc','ch-kpis','ch-pages'].forEach(id => { const el = document.getElementById(id); if (el) el.value=''; });
+    document.getElementById('ch-type').value = 'Algorithm Update';
+    document.getElementById('ch-impact').value = 'Negative';
+  }
+  document.getElementById('modal-change').classList.add('show');
+}
+function closeChangeModal() { document.getElementById('modal-change').classList.remove('show'); }
+function saveChange() {
+  const ch = {
+    date: document.getElementById('ch-date').value,
+    type: document.getElementById('ch-type').value,
+    description: document.getElementById('ch-desc').value,
+    impact: document.getElementById('ch-impact').value,
+    kpis: document.getElementById('ch-kpis').value,
+    pages: document.getElementById('ch-pages').value
+  };
+  if (!ch.date||!ch.description) { alert('Date and Description are required'); return; }
+  if (editingIdx >= 0) notableChanges[editingIdx] = ch; else notableChanges.push(ch);
+  localStorage.setItem('notable_changes', JSON.stringify(notableChanges));
+  closeChangeModal();
+  renderChanges();
+  refreshDashboard();
+}
+function deleteChange(idx) {
+  if (confirm('Delete this change?')) {
+    notableChanges.splice(idx, 1);
+    localStorage.setItem('notable_changes', JSON.stringify(notableChanges));
+    renderChanges();
+    refreshDashboard();
+  }
+}
+
+// ============ INSIGHTS ============
+function generateInsights() {
+  const container = document.getElementById('insights-container');
+  if (!DATA.gsc && !DATA.ga.overall) { container.innerHTML = '<div class="empty-state"><div class="icon">ðŸ’¡</div><div>Upload data files to generate insights.</div></div>'; return; }
+  container.innerHTML = '';
+
+  const insights = [];
+  const gscData = DATA.gsc||[];
+  const threshold = 15;
+
+  if (gscData.length > 0) {
+    for (let i = 1; i < gscData.length; i++) {
+      const curr = gscData[i], prev = gscData[i-1];
+      ['clicks','impressions'].forEach(metric => {
+        if (!prev[metric]) return;
+        const change = ((curr[metric]-prev[metric])/prev[metric])*100;
+        if (Math.abs(change) > threshold) {
+          const hasReason = notableChanges.some(c => Math.abs(new Date(c.date)-new Date(curr.date)) < 86400000);
+          insights.push({ date: curr.date, metric: KPI_LABELS[metric], change, value: curr[metric], prevValue: prev[metric], hasReason, type: change<0?'drop':'spike', source: 'GSC' });
+        }
+      });
+    }
+  }
+
+  ['overall','organic','internal'].forEach(journey => {
+    const gaData = DATA.ga[journey];
+    if (!gaData) return;
+    ['pdp','mcat','company','home'].forEach(page => {
+      const pageData = gaData[page];
+      if (!pageData) return;
+      for (let i = 1; i < pageData.length; i++) {
+        const curr = pageData[i], prev = pageData[i-1];
+        if (!curr||!prev||!prev.users) return;
+        const change = ((curr.users-prev.users)/prev.users)*100;
+        if (Math.abs(change) > 15) {
+          const startDate = new Date(DATA.gsc?.[0]?.date||'2025-11-04');
+          startDate.setDate(startDate.getDate() + curr.week*7);
+          const weekDate = startDate.toISOString().split('T')[0];
+          const hasReason = notableChanges.some(c => Math.abs(new Date(c.date)-new Date(weekDate)) < 7*86400000);
+          insights.push({ date: weekDate, metric: `Users (${journey}/${page})`, change, value: curr.users, prevValue: prev.users, hasReason, type: change<0?'drop':'spike', source: 'GA' });
+        }
+      }
+    });
+  });
+
+  insights.sort((a,b) => Math.abs(b.change)-Math.abs(a.change));
+  const unexpDrop   = insights.filter(i => i.type==='drop' && !i.hasReason);
+  const unexpSpike  = insights.filter(i => i.type==='spike' && !i.hasReason);
+  const explained   = insights.filter(i => i.hasReason);
+
+  // Summary cards
+  if (unexpDrop.length) {
+    container.innerHTML += `<div class="insight-card">
+      <div class="insight-title">âš ï¸ ${unexpDrop.length} Unexplained Traffic Drops Detected</div>
+      <div class="insight-detail">Drops >15% DoD with no notable changes logged. The most severe: <strong>${unexpDrop[0].metric}</strong> on ${unexpDrop[0].date} (${unexpDrop[0].change.toFixed(1)}%). Consider investigating algorithm updates, technical issues, or competitor changes.</div>
+    </div>`;
+  }
+  if (unexpSpike.length) {
+    container.innerHTML += `<div class="insight-card info">
+      <div class="insight-title">ðŸ“ˆ ${unexpSpike.length} Unexplained Traffic Spikes</div>
+      <div class="insight-detail">Significant increases (>15% DoD) with no attributed reason logged. Largest: <strong>${unexpSpike[0].metric}</strong> on ${unexpSpike[0].date} (+${unexpSpike[0].change.toFixed(1)}%).</div>
+    </div>`;
+  }
+  if (explained.length) {
+    container.innerHTML += `<div class="insight-card success">
+      <div class="insight-title">âœ… ${explained.length} Anomalies with Attributed Reasons</div>
+      <div class="insight-detail">These anomalies have matching notable changes logged, providing context for the traffic movements.</div>
+    </div>`;
+  }
+
+  // Trend summary
+  if (gscData.length >= 30) {
+    const recent30 = gscData.slice(-30), prev30 = gscData.slice(-60,-30);
+    const avgRecent = recent30.reduce((a,b)=>a+b.clicks,0)/30;
+    const avgPrev   = prev30.length ? prev30.reduce((a,b)=>a+b.clicks,0)/prev30.length : avgRecent;
+    const trendPct  = ((avgRecent-avgPrev)/avgPrev)*100;
+    const trendType = trendPct >= 5 ? 'success' : trendPct <= -5 ? '' : 'info';
+    container.innerHTML += `<div class="insight-card ${trendType}">
+      <div class="insight-title">${trendPct>=0?'ðŸ“ˆ':'ðŸ“‰'} 30-Day Click Trend: ${trendPct>=0?'+':''}${trendPct.toFixed(1)}%</div>
+      <div class="insight-detail">Average daily clicks in last 30 days: <strong>${avgRecent.toLocaleString('en-IN')}</strong> vs <strong>${avgPrev.toLocaleString('en-IN')}</strong> in the 30 days prior.</div>
+    </div>`;
+  }
+
+  // Position trend
+  if (gscData.length >= 14) {
+    const recent7 = gscData.slice(-7), prev7 = gscData.slice(-14,-7);
+    const avgPos7  = recent7.reduce((a,b)=>a+b.position,0)/7;
+    const avgPosPr = prev7.reduce((a,b)=>a+b.position,0)/7;
+    const posChg   = avgPos7 - avgPosPr;
+    const posType  = posChg <= -0.1 ? 'success' : posChg >= 0.1 ? '' : 'info';
+    container.innerHTML += `<div class="insight-card ${posType}">
+      <div class="insight-title">${posChg<=0?'âœ…':'âš ï¸'} Avg Position (7D): ${avgPos7.toFixed(2)} ${posChg<=0?'â†‘ Improved':'â†“ Declined'} ${Math.abs(posChg).toFixed(2)} vs prior week</div>
+      <div class="insight-detail">Lower position numbers = higher Google ranking. Current 7-day average: <strong>${avgPos7.toFixed(2)}</strong> vs prior week's <strong>${avgPosPr.toFixed(2)}</strong>.</div>
+    </div>`;
+  }
+
+  if (insights.length > 0) {
+    let tbl = `<div class="chart-card" style="margin-top:12px;overflow-x:auto;padding:0">
+      <div style="padding:16px 20px 0"><div class="chart-title">Detailed Anomaly Report</div><div class="chart-subtitle">${insights.length} total anomalies â€” top 50 shown</div></div>
+      <table class="changes-table" style="margin-top:12px">
+        <thead><tr><th>Date</th><th>Source</th><th>Metric</th><th>Change</th><th>Previous</th><th>Current</th><th>Explained?</th></tr></thead>
+        <tbody>`;
+    insights.slice(0,50).forEach(ins => {
+      const cb = ins.change<0?'badge-red':'badge-green';
+      const rb = ins.hasReason?'<span class="badge badge-green">Yes âœ“</span>':'<span class="badge badge-red">No âœ—</span>';
+      tbl += `<tr><td>${ins.date}</td><td><span class="badge badge-cyan">${ins.source}</span></td><td>${ins.metric}</td><td><span class="badge ${cb}">${ins.change>0?'+':''}${ins.change.toFixed(1)}%</span></td><td>${fmtVal(ins.metric.includes('CTR')?'ctr':ins.metric.includes('Users')?'users':'clicks',ins.prevValue)}</td><td>${fmtVal(ins.metric.includes('CTR')?'ctr':ins.metric.includes('Users')?'users':'clicks',ins.value)}</td><td>${rb}</td></tr>`;
+    });
+    tbl += '</tbody></table></div>';
+    container.innerHTML += tbl;
+  }
+
+  if (!insights.length) container.innerHTML += `<div class="insight-card info"><div class="insight-title">âœ… No Significant Anomalies</div><div class="insight-detail">All changes are within normal daily variance.</div></div>`;
+}
+
+// ============ TEST DATA ============
+function loadTestData() {
+  const gscDaily = [];
+  const startDate = new Date('2025-11-04');
+  const baseClicks = 1400000, baseImpressions = 60000000;
+  for (let d = 0; d < 180; d++) {
+    const dt = new Date(startDate); dt.setDate(dt.getDate()+d);
+    const dow = dt.getDay();
+    const wFactor = (dow===0||dow===6) ? 0.85 : 1.0;
+    const tFactor = 1 + Math.sin(d/60)*0.08;
+    const noise   = 0.95 + Math.random()*0.10;
+    const clicks  = Math.round(baseClicks*wFactor*tFactor*noise);
+    const impr    = Math.round(baseImpressions*wFactor*tFactor*(0.95+Math.random()*0.10));
+    gscDaily.push({ date: dt.toISOString().split('T')[0], clicks, impressions: impr, ctr: clicks/impr*100, position: 5.8+Math.random()*0.6 });
+  }
+  DATA.gsc = gscDaily;
+  const pageConfigs = { pdp:{base:7500000,v:0.08}, mcat:{base:3400000,v:0.06}, company:{base:3200000,v:0.07}, home:{base:4000000,v:0.10} };
+  ['overall','organic','internal'].forEach(journey => {
+    const jFactor = journey==='overall'?1:journey==='organic'?0.55:0.30;
+    const result = {};
+    Object.keys(pageConfigs).forEach(page => {
+      const cfg = pageConfigs[page];
+      result[page] = [];
+      for (let w = 0; w < 26; w++) {
+        const trend = 1 + Math.sin(w/10)*cfg.v;
+        const noise = 0.96 + Math.random()*0.08;
+        let dip = w===8?0.88:w===17?0.82:1;
+        result[page].push({ week: w, users: Math.round(cfg.base*jFactor*trend*noise*dip) });
+      }
+    });
+    DATA.ga[journey] = result;
+  });
+  notableChanges = [
+    { date: '2025-12-25', type: 'Holiday', description: 'Christmas â€” expected traffic dip', impact: 'Negative', kpis: 'Clicks, Users', pages: 'All' },
+    { date: '2026-01-14', type: 'Algorithm Update', description: 'Google Core Update January 2026', impact: 'Negative', kpis: 'Impressions, Clicks', pages: 'PDP, MCAT' },
+    { date: '2026-03-10', type: 'Site Change', description: 'New PDP template launched', impact: 'Positive', kpis: 'Users, CTR', pages: 'PDP' }
+  ];
+  localStorage.setItem('notable_changes', JSON.stringify(notableChanges));
+  renderChanges();
+  ['gsc','ga-overall-daily','ga-organic-daily','ga-internal-daily'].forEach(type => {
+    const z = document.getElementById('zone-'+type);
+    const s = document.getElementById('status-'+type);
+    if (z) z.classList.add('loaded');
+    if (s) { s.textContent='âœ“ Demo data loaded'; s.className='upload-status ok'; }
+  });
+  initDatePickers(); refreshDashboard(); initDayComparisonPicker();
+}
+
+// ============ MODAL CLOSE ON BG CLICK ============
+document.getElementById('modal-change').addEventListener('click', function(e) { if (e.target===this) closeChangeModal(); });
+
+// ============ INIT ============
+renderChanges();
+loadRealData();
+</script>
+
+</body>
+</html>
